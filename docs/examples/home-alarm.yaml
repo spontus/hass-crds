@@ -1,0 +1,25 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTAlarmControlPanel
+metadata:
+  name: home-alarm
+  namespace: hass-crds
+spec:
+  name: "Home Alarm"
+  commandTopic: "alarm/home/set"
+  stateTopic: "alarm/home/state"
+  codeFormat: "number"
+  codeArmRequired: true
+  codeDisarmRequired: true
+  supportedFeatures:
+    - "arm_home"
+    - "arm_away"
+    - "arm_night"
+    - "trigger"
+  icon: "mdi:shield-home"
+  device:
+    name: "Home Alarm Panel"
+    identifiers:
+      - "alarm-panel-01"
+    manufacturer: "Custom"
+    model: "Smart Alarm v1"
+    suggestedArea: "Hallway"

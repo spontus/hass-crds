@@ -1,0 +1,17 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTScene
+metadata:
+  name: movie-night-scene
+  namespace: hass-crds
+spec:
+  name: "Movie Night"
+  commandTopic: "scenes/movie-night/activate"
+  payloadOn: "ON"
+  icon: "mdi:movie-open"
+  device:
+    name: "Scene Controller"
+    identifiers:
+      - "scene-controller-01"
+    manufacturer: "Custom"
+    model: "Scene Manager"
+    suggestedArea: "Living Room"

@@ -1,0 +1,21 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSensor
+metadata:
+  name: office-temperature
+  namespace: hass-crds
+spec:
+  name: "Office Temperature"
+  stateTopic: "sensors/office/temperature"
+  unitOfMeasurement: "\u00b0C"
+  deviceClass: "temperature"
+  stateClass: "measurement"
+  valueTemplate: "{{ value_json.temperature }}"
+  suggestedDisplayPrecision: 1
+  expireAfter: 300
+  device:
+    name: "Office Sensor Hub"
+    identifiers:
+      - "office-sensor-hub-01"
+    manufacturer: "Custom"
+    model: "ESP32 Sensor Hub"
+    suggestedArea: "Office"

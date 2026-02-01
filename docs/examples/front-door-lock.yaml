@@ -1,0 +1,18 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTLock
+metadata:
+  name: front-door-lock
+  namespace: hass-crds
+spec:
+  name: "Front Door Lock"
+  commandTopic: "locks/front-door/set"
+  stateTopic: "locks/front-door/state"
+  codeFormat: "^\\d{4}$"
+  icon: "mdi:lock"
+  device:
+    name: "Front Door Lock"
+    identifiers:
+      - "front-door-lock-01"
+    manufacturer: "Custom"
+    model: "Smart Lock v2"
+    suggestedArea: "Front Door"

@@ -1,0 +1,22 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSelect
+metadata:
+  name: alarm-mode
+  namespace: hass-crds
+spec:
+  name: "Alarm Mode"
+  commandTopic: "cmnd/alarm/mode"
+  stateTopic: "stat/alarm/mode"
+  options:
+    - "disarmed"
+    - "armed_home"
+    - "armed_away"
+    - "armed_night"
+  icon: "mdi:shield-home"
+  device:
+    name: "Alarm Panel"
+    identifiers:
+      - "alarm-panel-01"
+    manufacturer: "Custom"
+    model: "K8s Alarm Controller"
+    suggestedArea: "Entrance"

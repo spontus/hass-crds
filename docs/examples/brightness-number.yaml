@@ -1,0 +1,22 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTNumber
+metadata:
+  name: display-brightness
+  namespace: hass-crds
+spec:
+  name: "Display Brightness"
+  commandTopic: "cmnd/display/brightness"
+  stateTopic: "stat/display/brightness"
+  min: 0
+  max: 100
+  step: 5
+  mode: "slider"
+  unitOfMeasurement: "%"
+  icon: "mdi:brightness-6"
+  device:
+    name: "Dashboard Display"
+    identifiers:
+      - "dashboard-display-01"
+    manufacturer: "Custom"
+    model: "7-inch LCD"
+    suggestedArea: "Kitchen"

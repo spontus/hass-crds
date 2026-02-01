@@ -1,0 +1,29 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTHumidifier
+metadata:
+  name: room-humidifier
+  namespace: hass-crds
+spec:
+  name: "Room Humidifier"
+  commandTopic: "humidifier/room/set"
+  stateTopic: "humidifier/room/state"
+  targetHumidityCommandTopic: "humidifier/room/humidity/set"
+  targetHumidityStateTopic: "humidifier/room/humidity/state"
+  modes:
+    - "normal"
+    - "eco"
+    - "boost"
+    - "sleep"
+  modeCommandTopic: "humidifier/room/mode/set"
+  modeStateTopic: "humidifier/room/mode/state"
+  minHumidity: 30
+  maxHumidity: 80
+  deviceClass: "humidifier"
+  icon: "mdi:air-humidifier"
+  device:
+    name: "Room Humidifier"
+    identifiers:
+      - "humidifier-room-01"
+    manufacturer: "Custom"
+    model: "Smart Humidifier"
+    suggestedArea: "Bedroom"

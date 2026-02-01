@@ -1,0 +1,21 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTUpdate
+metadata:
+  name: firmware-update
+  namespace: hass-crds
+spec:
+  name: "Firmware Update"
+  stateTopic: "device/firmware/state"
+  latestVersionTopic: "device/firmware/latest"
+  commandTopic: "device/firmware/install"
+  deviceClass: "firmware"
+  title: "Device Firmware"
+  releaseUrl: "https://github.com/example/device/releases"
+  icon: "mdi:update"
+  device:
+    name: "IoT Device"
+    identifiers:
+      - "iot-device-01"
+    manufacturer: "Custom"
+    model: "IoT Hub v3"
+    suggestedArea: "Server Room"

@@ -1,0 +1,19 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSwitch
+metadata:
+  name: desk-lamp
+  namespace: hass-crds
+spec:
+  name: "Desk Lamp"
+  commandTopic: "cmnd/desk-lamp/POWER"
+  stateTopic: "stat/desk-lamp/POWER"
+  payloadOn: "ON"
+  payloadOff: "OFF"
+  icon: "mdi:desk-lamp"
+  device:
+    name: "Desk Lamp"
+    identifiers:
+      - "desk-lamp-01"
+    manufacturer: "Sonoff"
+    model: "Basic R2"
+    suggestedArea: "Office"

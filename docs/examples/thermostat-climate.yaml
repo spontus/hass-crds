@@ -1,0 +1,39 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTClimate
+metadata:
+  name: living-room-thermostat
+  namespace: hass-crds
+spec:
+  name: "Living Room Thermostat"
+  temperatureCommandTopic: "hvac/living-room/temp/set"
+  temperatureStateTopic: "hvac/living-room/temp/state"
+  currentTemperatureTopic: "hvac/living-room/temp/current"
+  modeCommandTopic: "hvac/living-room/mode/set"
+  modeStateTopic: "hvac/living-room/mode/state"
+  fanModeCommandTopic: "hvac/living-room/fan/set"
+  fanModeStateTopic: "hvac/living-room/fan/state"
+  actionTopic: "hvac/living-room/action"
+  modes:
+    - "off"
+    - "heat"
+    - "cool"
+    - "auto"
+  fanModes:
+    - "auto"
+    - "low"
+    - "medium"
+    - "high"
+  presetModes:
+    - "home"
+    - "away"
+    - "eco"
+  minTemp: 16
+  maxTemp: 30
+  tempStep: 0.5
+  device:
+    name: "Living Room HVAC"
+    identifiers:
+      - "hvac-living-room-01"
+    manufacturer: "Custom"
+    model: "Smart Thermostat"
+    suggestedArea: "Living Room"

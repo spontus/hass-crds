@@ -1,0 +1,28 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTWaterHeater
+metadata:
+  name: water-heater
+  namespace: hass-crds
+spec:
+  name: "Water Heater"
+  temperatureCommandTopic: "water-heater/temp/set"
+  temperatureStateTopic: "water-heater/temp/state"
+  currentTemperatureTopic: "water-heater/temp/current"
+  modeCommandTopic: "water-heater/mode/set"
+  modeStateTopic: "water-heater/mode/state"
+  modes:
+    - "off"
+    - "eco"
+    - "electric"
+    - "performance"
+  minTemp: 30
+  maxTemp: 70
+  temperatureUnit: "C"
+  icon: "mdi:water-boiler"
+  device:
+    name: "Water Heater"
+    identifiers:
+      - "water-heater-01"
+    manufacturer: "Custom"
+    model: "Smart Water Heater"
+    suggestedArea: "Utility Room"

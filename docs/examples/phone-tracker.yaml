@@ -1,0 +1,19 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTDeviceTracker
+metadata:
+  name: phone-tracker
+  namespace: hass-crds
+spec:
+  name: "Phone Tracker"
+  stateTopic: "tracker/phone/state"
+  sourceType: "bluetooth_le"
+  payloadHome: "home"
+  payloadNotHome: "not_home"
+  icon: "mdi:cellphone"
+  device:
+    name: "Phone Tracker"
+    identifiers:
+      - "phone-tracker-01"
+    manufacturer: "Custom"
+    model: "BLE Scanner"
+    suggestedArea: "Living Room"

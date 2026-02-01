@@ -1,0 +1,20 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTBinarySensor
+metadata:
+  name: hallway-motion
+  namespace: hass-crds
+spec:
+  name: "Hallway Motion"
+  stateTopic: "sensors/hallway/motion"
+  deviceClass: "motion"
+  payloadOn: "ON"
+  payloadOff: "OFF"
+  offDelay: 120
+  icon: "mdi:motion-sensor"
+  device:
+    name: "Hallway Motion Sensor"
+    identifiers:
+      - "hallway-motion-01"
+    manufacturer: "Custom"
+    model: "PIR Sensor"
+    suggestedArea: "Hallway"

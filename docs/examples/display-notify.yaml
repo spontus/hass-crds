@@ -1,0 +1,17 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTNotify
+metadata:
+  name: display-notify
+  namespace: hass-crds
+spec:
+  name: "Display Notification"
+  commandTopic: "display/notify"
+  commandTemplate: '{"text": "{{ value }}"}'
+  icon: "mdi:message-text"
+  device:
+    name: "Smart Display"
+    identifiers:
+      - "smart-display-01"
+    manufacturer: "Custom"
+    model: "E-Ink Display"
+    suggestedArea: "Kitchen"

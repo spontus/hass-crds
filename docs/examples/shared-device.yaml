@@ -1,0 +1,73 @@
+# Shared device definition with multiple entities referencing it.
+# This replaces duplicated device blocks across entity CRDs.
+---
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTDevice
+metadata:
+  name: weather-station
+  namespace: hass-crds
+spec:
+  name: "Weather Station"
+  identifiers:
+    - "weather-station-01"
+  manufacturer: "Custom"
+  model: "ESP32 Weather Station"
+  swVersion: "2.1.0"
+  suggestedArea: "Garden"
+---
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSensor
+metadata:
+  name: weather-temperature
+  namespace: hass-crds
+spec:
+  name: "Temperature"
+  stateTopic: "sensors/weather/temperature"
+  unitOfMeasurement: "°C"
+  deviceClass: "temperature"
+  stateClass: "measurement"
+  suggestedDisplayPrecision: 1
+  deviceRef:
+    name: "weather-station"
+---
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSensor
+metadata:
+  name: weather-humidity
+  namespace: hass-crds
+spec:
+  name: "Humidity"
+  stateTopic: "sensors/weather/humidity"
+  unitOfMeasurement: "%"
+  deviceClass: "humidity"
+  stateClass: "measurement"
+  deviceRef:
+    name: "weather-station"
+---
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSensor
+metadata:
+  name: weather-pressure
+  namespace: hass-crds
+spec:
+  name: "Pressure"
+  stateTopic: "sensors/weather/pressure"
+  unitOfMeasurement: "hPa"
+  deviceClass: "atmospheric_pressure"
+  stateClass: "measurement"
+  deviceRef:
+    name: "weather-station"
+---
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTBinarySensor
+metadata:
+  name: weather-rain
+  namespace: hass-crds
+spec:
+  name: "Rain Detected"
+  stateTopic: "sensors/weather/rain"
+  deviceClass: "moisture"
+  payloadOn: "WET"
+  payloadOff: "DRY"
+  deviceRef:
+    name: "weather-station"

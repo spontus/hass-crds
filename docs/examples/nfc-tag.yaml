@@ -1,0 +1,15 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTTag
+metadata:
+  name: nfc-tag
+  namespace: hass-crds
+spec:
+  topic: "tags/nfc/scan"
+  valueTemplate: "{{ value_json.tag_id }}"
+  device:
+    name: "NFC Reader"
+    identifiers:
+      - "nfc-reader-01"
+    manufacturer: "Custom"
+    model: "NFC Scanner"
+    suggestedArea: "Entrance"

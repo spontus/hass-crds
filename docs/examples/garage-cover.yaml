@@ -1,0 +1,24 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTCover
+metadata:
+  name: garage-door
+  namespace: hass-crds
+spec:
+  name: "Garage Door"
+  commandTopic: "cmnd/garage/door"
+  stateTopic: "stat/garage/door/state"
+  positionTopic: "stat/garage/door/position"
+  setPositionTopic: "cmnd/garage/door/position"
+  deviceClass: "garage"
+  payloadOpen: "OPEN"
+  payloadClose: "CLOSE"
+  payloadStop: "STOP"
+  positionOpen: 100
+  positionClosed: 0
+  device:
+    name: "Garage Controller"
+    identifiers:
+      - "garage-controller-01"
+    manufacturer: "Custom"
+    model: "ESP32 Garage Controller"
+    suggestedArea: "Garage"

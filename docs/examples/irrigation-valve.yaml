@@ -1,0 +1,18 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTValve
+metadata:
+  name: irrigation-valve
+  namespace: hass-crds
+spec:
+  name: "Irrigation Valve"
+  commandTopic: "valves/irrigation/set"
+  stateTopic: "valves/irrigation/state"
+  deviceClass: "water"
+  icon: "mdi:valve"
+  device:
+    name: "Garden Irrigation"
+    identifiers:
+      - "irrigation-valve-01"
+    manufacturer: "Custom"
+    model: "Smart Valve"
+    suggestedArea: "Garden"

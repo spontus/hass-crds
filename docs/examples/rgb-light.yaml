@@ -1,0 +1,27 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTLight
+metadata:
+  name: led-strip
+  namespace: hass-crds
+spec:
+  name: "LED Strip"
+  schema: "json"
+  commandTopic: "lights/led-strip/set"
+  stateTopic: "lights/led-strip/state"
+  brightness: true
+  supportedColorModes:
+    - "rgb"
+  effectList:
+    - "rainbow"
+    - "breathing"
+    - "color_wipe"
+    - "solid"
+  icon: "mdi:led-strip-variant"
+  device:
+    name: "LED Controller"
+    identifiers:
+      - "led-controller-01"
+    manufacturer: "WLED"
+    model: "ESP32"
+    swVersion: "0.14.0"
+    suggestedArea: "Living Room"

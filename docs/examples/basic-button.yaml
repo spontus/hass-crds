@@ -1,0 +1,17 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTButton
+metadata:
+  name: restart-server
+  namespace: hass-crds
+spec:
+  name: "Restart Server"
+  commandTopic: "cmnd/server/restart"
+  payloadPress: "RESTART"
+  deviceClass: "restart"
+  icon: "mdi:restart"
+  device:
+    name: "Home Server"
+    identifiers:
+      - "home-server-01"
+    manufacturer: "Custom"
+    model: "Ubuntu Server"

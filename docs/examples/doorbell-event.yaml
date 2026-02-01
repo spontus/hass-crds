@@ -1,0 +1,20 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTEvent
+metadata:
+  name: doorbell-event
+  namespace: hass-crds
+spec:
+  name: "Doorbell"
+  stateTopic: "doorbell/event"
+  eventTypes:
+    - "press"
+    - "double_press"
+  deviceClass: "doorbell"
+  icon: "mdi:doorbell"
+  device:
+    name: "Smart Doorbell"
+    identifiers:
+      - "doorbell-01"
+    manufacturer: "Custom"
+    model: "Smart Doorbell v2"
+    suggestedArea: "Front Door"

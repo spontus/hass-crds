@@ -1,0 +1,31 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTFan
+metadata:
+  name: ceiling-fan
+  namespace: hass-crds
+spec:
+  name: "Ceiling Fan"
+  commandTopic: "fans/ceiling/set"
+  stateTopic: "fans/ceiling/state"
+  percentageCommandTopic: "fans/ceiling/speed/set"
+  percentageStateTopic: "fans/ceiling/speed/state"
+  speedRangeMin: 1
+  speedRangeMax: 6
+  presetModes:
+    - "normal"
+    - "breeze"
+    - "sleep"
+  presetModeCommandTopic: "fans/ceiling/preset/set"
+  presetModeStateTopic: "fans/ceiling/preset/state"
+  oscillationCommandTopic: "fans/ceiling/oscillation/set"
+  oscillationStateTopic: "fans/ceiling/oscillation/state"
+  directionCommandTopic: "fans/ceiling/direction/set"
+  directionStateTopic: "fans/ceiling/direction/state"
+  icon: "mdi:fan"
+  device:
+    name: "Ceiling Fan"
+    identifiers:
+      - "ceiling-fan-01"
+    manufacturer: "Custom"
+    model: "Smart Fan Controller"
+    suggestedArea: "Living Room"

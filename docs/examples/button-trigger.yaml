@@ -1,0 +1,17 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTDeviceTrigger
+metadata:
+  name: button-trigger
+  namespace: hass-crds
+spec:
+  topic: "zigbee/button/action"
+  type: "button_short_press"
+  subtype: "button_1"
+  automationType: "trigger"
+  device:
+    name: "Zigbee Button"
+    identifiers:
+      - "zigbee-button-01"
+    manufacturer: "Custom"
+    model: "Wireless Button"
+    suggestedArea: "Living Room"

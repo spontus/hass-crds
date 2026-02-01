@@ -1,0 +1,18 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTImage
+metadata:
+  name: plant-image
+  namespace: hass-crds
+spec:
+  name: "Plant Cam"
+  imageTopic: "cameras/plant/image"
+  imageEncoding: "b64"
+  contentType: "image/jpeg"
+  icon: "mdi:flower"
+  device:
+    name: "Plant Camera"
+    identifiers:
+      - "plant-cam-01"
+    manufacturer: "Custom"
+    model: "ESP32-CAM"
+    suggestedArea: "Garden"

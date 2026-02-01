@@ -1,0 +1,17 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTCamera
+metadata:
+  name: doorbell-camera
+  namespace: hass-crds
+spec:
+  name: "Doorbell Camera"
+  topic: "cameras/doorbell/image"
+  imageEncoding: "b64"
+  icon: "mdi:doorbell-video"
+  device:
+    name: "Doorbell"
+    identifiers:
+      - "doorbell-01"
+    manufacturer: "Custom"
+    model: "Smart Doorbell v2"
+    suggestedArea: "Front Door"

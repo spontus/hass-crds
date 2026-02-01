@@ -1,0 +1,84 @@
+# Multiple entities sharing one device block.
+# All entities with the same device identifiers are grouped
+# under a single device in Home Assistant's device registry.
+---
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSensor
+metadata:
+  name: weather-station-temperature
+  namespace: hass-crds
+spec:
+  name: "Temperature"
+  stateTopic: "sensors/weather-station/temperature"
+  unitOfMeasurement: "\u00b0C"
+  deviceClass: "temperature"
+  stateClass: "measurement"
+  suggestedDisplayPrecision: 1
+  device:
+    name: "Weather Station"
+    identifiers:
+      - "weather-station-01"
+    manufacturer: "Custom"
+    model: "ESP32 Weather Station"
+    swVersion: "2.1.0"
+    suggestedArea: "Garden"
+---
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSensor
+metadata:
+  name: weather-station-humidity
+  namespace: hass-crds
+spec:
+  name: "Humidity"
+  stateTopic: "sensors/weather-station/humidity"
+  unitOfMeasurement: "%"
+  deviceClass: "humidity"
+  stateClass: "measurement"
+  device:
+    name: "Weather Station"
+    identifiers:
+      - "weather-station-01"
+    manufacturer: "Custom"
+    model: "ESP32 Weather Station"
+    swVersion: "2.1.0"
+    suggestedArea: "Garden"
+---
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSensor
+metadata:
+  name: weather-station-pressure
+  namespace: hass-crds
+spec:
+  name: "Pressure"
+  stateTopic: "sensors/weather-station/pressure"
+  unitOfMeasurement: "hPa"
+  deviceClass: "atmospheric_pressure"
+  stateClass: "measurement"
+  device:
+    name: "Weather Station"
+    identifiers:
+      - "weather-station-01"
+    manufacturer: "Custom"
+    model: "ESP32 Weather Station"
+    swVersion: "2.1.0"
+    suggestedArea: "Garden"
+---
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTBinarySensor
+metadata:
+  name: weather-station-rain
+  namespace: hass-crds
+spec:
+  name: "Rain Detected"
+  stateTopic: "sensors/weather-station/rain"
+  deviceClass: "moisture"
+  payloadOn: "WET"
+  payloadOff: "DRY"
+  device:
+    name: "Weather Station"
+    identifiers:
+      - "weather-station-01"
+    manufacturer: "Custom"
+    model: "ESP32 Weather Station"
+    swVersion: "2.1.0"
+    suggestedArea: "Garden"

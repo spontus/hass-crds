@@ -1,0 +1,19 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTLawnMower
+metadata:
+  name: robot-mower
+  namespace: hass-crds
+spec:
+  name: "Robot Mower"
+  activityStateTopic: "mower/robot/activity"
+  dockCommandTopic: "mower/robot/dock"
+  pauseCommandTopic: "mower/robot/pause"
+  startMowingCommandTopic: "mower/robot/start"
+  icon: "mdi:robot-mower"
+  device:
+    name: "Robot Mower"
+    identifiers:
+      - "robot-mower-01"
+    manufacturer: "Custom"
+    model: "AutoMow v2"
+    suggestedArea: "Garden"

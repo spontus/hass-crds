@@ -1,0 +1,21 @@
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSiren
+metadata:
+  name: alarm-siren
+  namespace: hass-crds
+spec:
+  name: "Alarm Siren"
+  commandTopic: "siren/alarm/set"
+  stateTopic: "siren/alarm/state"
+  availableTones:
+    - "fire"
+    - "intruder"
+    - "doorbell"
+  icon: "mdi:bullhorn"
+  device:
+    name: "Alarm Siren"
+    identifiers:
+      - "alarm-siren-01"
+    manufacturer: "Custom"
+    model: "Multi-Tone Siren"
+    suggestedArea: "Hallway"
