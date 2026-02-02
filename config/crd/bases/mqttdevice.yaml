@@ -77,6 +77,9 @@ spec:
                   minItems: 2
                   maxItems: 2
                 description: List of [type, value] pairs (e.g. [[mac, aa:bb:cc:dd:ee:ff]])
+                x-kubernetes-validations:
+                - rule: 'self.all(conn, conn[0] in ["mac", "bluetooth", "zigbee", "upnp"])'
+                  message: 'Connection type must be: mac, bluetooth, zigbee, or upnp'
               manufacturer:
                 type: string
                 description: Device manufacturer
@@ -107,6 +110,10 @@ spec:
           status:
             type: object
             properties:
+              observedGeneration:
+                type: integer
+                format: int64
+                description: The generation observed by the controller
               lastPublished:
                 type: string
                 format: date-time

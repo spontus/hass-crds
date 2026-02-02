@@ -40,6 +40,16 @@ spec:
     - name: Schema
       type: string
       jsonPath: .spec.schema
+    - name: Device
+      type: string
+      description: Inline device name
+      jsonPath: .spec.device.name
+      priority: 1
+    - name: DeviceRef
+      type: string
+      description: Referenced MQTTDevice
+      jsonPath: .spec.deviceRef.name
+      priority: 1
     - name: Age
       type: date
       jsonPath: .metadata.creationTimestamp
@@ -69,9 +79,17 @@ spec:
               commandTopic:
                 type: string
                 description: Topic to publish on/off commands
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               stateTopic:
                 type: string
                 description: Topic to read current state
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               payloadOn:
                 type: string
                 description: 'Payload for on (default: ON)'
@@ -81,30 +99,55 @@ spec:
               brightnessCommandTopic:
                 type: string
                 description: Topic for brightness commands
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               brightnessStateTopic:
                 type: string
                 description: Topic for brightness state
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               brightnessScale:
                 type: integer
                 description: 'Max brightness value (default: 255)'
+                minimum: 1
               brightnessValueTemplate:
                 type: string
                 description: Template to extract brightness
               colorTempCommandTopic:
                 type: string
                 description: Topic for color temperature commands
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               colorTempStateTopic:
                 type: string
                 description: Topic for color temperature state
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               colorTempValueTemplate:
                 type: string
                 description: Template to extract color temp
               rgbCommandTopic:
                 type: string
                 description: Topic for RGB color commands
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               rgbStateTopic:
                 type: string
                 description: Topic for RGB color state
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               rgbCommandTemplate:
                 type: string
                 description: Template for RGB command payload
@@ -114,9 +157,17 @@ spec:
               effectCommandTopic:
                 type: string
                 description: Topic for effect commands
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               effectStateTopic:
                 type: string
                 description: Topic for effect state
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               effectList:
                 type: array
                 items:
@@ -155,6 +206,16 @@ spec:
                 type: array
                 items:
                   type: string
+                  enum:
+                  - onoff
+                  - brightness
+                  - color_temp
+                  - hs
+                  - xy
+                  - rgb
+                  - rgbw
+                  - rgbww
+                  - white
                 description: Supported color modes (e.g. rgb, xy, hs, color_temp)
               commandOnTemplate:
                 type: string
@@ -186,6 +247,9 @@ spec:
               uniqueId:
                 type: string
                 description: Unique identifier for HA entity registry (defaults to <namespace>-<name>)
+                x-kubernetes-validations:
+                - rule: 'oldSelf == "" || self == oldSelf'
+                  message: uniqueId cannot be changed after creation
               icon:
                 type: string
                 description: MDI icon (e.g. mdi:thermometer)
@@ -222,6 +286,9 @@ spec:
                       minItems: 2
                       maxItems: 2
                     description: List of [type, value] pairs (e.g. [[mac, aa:bb:cc:dd:ee:ff]])
+                    x-kubernetes-validations:
+                    - rule: 'self.all(conn, conn[0] in ["mac", "bluetooth", "zigbee", "upnp"])'
+                      message: 'Connection type must be: mac, bluetooth, zigbee, or upnp'
                   manufacturer:
                     type: string
                     description: Device manufacturer
@@ -271,6 +338,10 @@ spec:
                     topic:
                       type: string
                       description: MQTT topic for availability
+                      minLength: 1
+                      x-kubernetes-validations:
+                      - rule: '!self.contains("#") && !self.contains("+")'
+                        message: MQTT wildcards (# and +) are not allowed in topics
                     payloadAvailable:
                       type: string
                       description: 'Payload indicating available (default: online)'
@@ -303,6 +374,10 @@ spec:
               jsonAttributesTopic:
                 type: string
                 description: MQTT topic for JSON attributes
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               jsonAttributesTemplate:
                 type: string
                 description: Template to extract attributes from payload
@@ -317,14 +392,20 @@ spec:
               message: Cannot specify both device and deviceRef
             - rule: '!has(self.schema) || self.schema != ''json'' || !has(self.brightnessCommandTopic)'
               message: 'brightnessCommandTopic is not valid with schema: json'
-            - rule: '!has(self.schema) || self.schema != ''default'' || !has(self.brightness)'
+            - rule: '!has(self.schema) || self.schema == ''json'' || !has(self.brightness)'
               message: 'brightness flag is only valid with schema: json'
+            - rule: '!has(self.minMireds) || !has(self.maxMireds) || self.minMireds < self.maxMireds'
+              message: minMireds must be less than maxMireds
             - rule: '!has(self.schema) || self.schema != ''template'' || (has(self.commandOnTemplate)
                 && has(self.commandOffTemplate))'
               message: 'commandOnTemplate and commandOffTemplate are required for schema: template'
           status:
             type: object
             properties:
+              observedGeneration:
+                type: integer
+                format: int64
+                description: The generation observed by the controller
               lastPublished:
                 type: string
                 format: date-time

@@ -37,6 +37,16 @@ spec:
       type: date
       description: When discovery was last published
       jsonPath: .status.lastPublished
+    - name: Device
+      type: string
+      description: Inline device name
+      jsonPath: .spec.device.name
+      priority: 1
+    - name: DeviceRef
+      type: string
+      description: Referenced MQTTDevice
+      jsonPath: .spec.deviceRef.name
+      priority: 1
     - name: Age
       type: date
       jsonPath: .metadata.creationTimestamp
@@ -59,12 +69,20 @@ spec:
               commandTopic:
                 type: string
                 description: Topic to publish number value
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               commandTemplate:
                 type: string
                 description: Template for the command payload
               stateTopic:
                 type: string
                 description: Topic to read current value
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               valueTemplate:
                 type: string
                 description: Template to extract value from payload
@@ -90,6 +108,55 @@ spec:
               deviceClass:
                 type: string
                 description: HA device class (e.g. temperature, humidity, power_factor)
+                enum:
+                - apparent_power
+                - aqi
+                - atmospheric_pressure
+                - battery
+                - carbon_dioxide
+                - carbon_monoxide
+                - current
+                - data_rate
+                - data_size
+                - distance
+                - duration
+                - energy
+                - energy_storage
+                - frequency
+                - gas
+                - humidity
+                - illuminance
+                - irradiance
+                - moisture
+                - monetary
+                - nitrogen_dioxide
+                - nitrogen_monoxide
+                - nitrous_oxide
+                - ozone
+                - ph
+                - pm1
+                - pm10
+                - pm25
+                - power
+                - power_factor
+                - precipitation
+                - precipitation_intensity
+                - pressure
+                - reactive_power
+                - signal_strength
+                - sound_pressure
+                - speed
+                - sulphur_dioxide
+                - temperature
+                - volatile_organic_compounds
+                - volatile_organic_compounds_parts
+                - voltage
+                - volume
+                - volume_flow_rate
+                - volume_storage
+                - water
+                - weight
+                - wind_speed
               optimistic:
                 type: boolean
                 description: Assume state changes immediately
@@ -99,6 +166,9 @@ spec:
               uniqueId:
                 type: string
                 description: Unique identifier for HA entity registry (defaults to <namespace>-<name>)
+                x-kubernetes-validations:
+                - rule: 'oldSelf == "" || self == oldSelf'
+                  message: uniqueId cannot be changed after creation
               icon:
                 type: string
                 description: MDI icon (e.g. mdi:thermometer)
@@ -135,6 +205,9 @@ spec:
                       minItems: 2
                       maxItems: 2
                     description: List of [type, value] pairs (e.g. [[mac, aa:bb:cc:dd:ee:ff]])
+                    x-kubernetes-validations:
+                    - rule: 'self.all(conn, conn[0] in ["mac", "bluetooth", "zigbee", "upnp"])'
+                      message: 'Connection type must be: mac, bluetooth, zigbee, or upnp'
                   manufacturer:
                     type: string
                     description: Device manufacturer
@@ -184,6 +257,10 @@ spec:
                     topic:
                       type: string
                       description: MQTT topic for availability
+                      minLength: 1
+                      x-kubernetes-validations:
+                      - rule: '!self.contains("#") && !self.contains("+")'
+                        message: MQTT wildcards (# and +) are not allowed in topics
                     payloadAvailable:
                       type: string
                       description: 'Payload indicating available (default: online)'
@@ -216,6 +293,10 @@ spec:
               jsonAttributesTopic:
                 type: string
                 description: MQTT topic for JSON attributes
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               jsonAttributesTemplate:
                 type: string
                 description: Template to extract attributes from payload
@@ -228,9 +309,15 @@ spec:
             x-kubernetes-validations:
             - rule: '!(has(self.device) && has(self.deviceRef))'
               message: Cannot specify both device and deviceRef
+            - rule: '!has(self.min) || !has(self.max) || self.min < self.max'
+              message: min must be less than max
           status:
             type: object
             properties:
+              observedGeneration:
+                type: integer
+                format: int64
+                description: The generation observed by the controller
               lastPublished:
                 type: string
                 format: date-time

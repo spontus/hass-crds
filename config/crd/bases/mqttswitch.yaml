@@ -40,6 +40,16 @@ spec:
     - name: Topic
       type: string
       jsonPath: .spec.commandTopic
+    - name: Device
+      type: string
+      description: Inline device name
+      jsonPath: .spec.device.name
+      priority: 1
+    - name: DeviceRef
+      type: string
+      description: Referenced MQTTDevice
+      jsonPath: .spec.deviceRef.name
+      priority: 1
     - name: Age
       type: date
       jsonPath: .metadata.creationTimestamp
@@ -62,9 +72,17 @@ spec:
               commandTopic:
                 type: string
                 description: Topic to publish on/off commands
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               stateTopic:
                 type: string
                 description: Topic to read current state
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               commandTemplate:
                 type: string
                 description: Template for the command payload
@@ -98,6 +116,9 @@ spec:
               uniqueId:
                 type: string
                 description: Unique identifier for HA entity registry (defaults to <namespace>-<name>)
+                x-kubernetes-validations:
+                - rule: 'oldSelf == "" || self == oldSelf'
+                  message: uniqueId cannot be changed after creation
               icon:
                 type: string
                 description: MDI icon (e.g. mdi:thermometer)
@@ -134,6 +155,9 @@ spec:
                       minItems: 2
                       maxItems: 2
                     description: List of [type, value] pairs (e.g. [[mac, aa:bb:cc:dd:ee:ff]])
+                    x-kubernetes-validations:
+                    - rule: 'self.all(conn, conn[0] in ["mac", "bluetooth", "zigbee", "upnp"])'
+                      message: 'Connection type must be: mac, bluetooth, zigbee, or upnp'
                   manufacturer:
                     type: string
                     description: Device manufacturer
@@ -183,6 +207,10 @@ spec:
                     topic:
                       type: string
                       description: MQTT topic for availability
+                      minLength: 1
+                      x-kubernetes-validations:
+                      - rule: '!self.contains("#") && !self.contains("+")'
+                        message: MQTT wildcards (# and +) are not allowed in topics
                     payloadAvailable:
                       type: string
                       description: 'Payload indicating available (default: online)'
@@ -215,6 +243,10 @@ spec:
               jsonAttributesTopic:
                 type: string
                 description: MQTT topic for JSON attributes
+                minLength: 1
+                x-kubernetes-validations:
+                - rule: '!self.contains("#") && !self.contains("+")'
+                  message: MQTT wildcards (# and +) are not allowed in topics
               jsonAttributesTemplate:
                 type: string
                 description: Template to extract attributes from payload
@@ -230,6 +262,10 @@ spec:
           status:
             type: object
             properties:
+              observedGeneration:
+                type: integer
+                format: int64
+                description: The generation observed by the controller
               lastPublished:
                 type: string
                 format: date-time
