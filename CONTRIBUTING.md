@@ -187,30 +187,27 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 
 ## Testing
 
-### Unit Tests
+See [Testing Strategy](docs/testing.md) for comprehensive testing documentation.
+
+### Quick Reference
 
 ```bash
-go test ./... -v
-```
+# Unit tests
+go test ./... -v -short
 
-### Integration Tests
-
-Requires a Kubernetes cluster and MQTT broker:
-
-```bash
-export KUBECONFIG=~/.kube/config
+# Integration tests (requires MQTT broker)
 export MQTT_HOST=localhost
+export MQTT_PORT=1883
 go test ./... -tags=integration -v
-```
 
-### End-to-End Tests
-
-Requires Home Assistant:
-
-```bash
+# E2E tests (requires Home Assistant)
 export HA_URL=http://localhost:8123
 export HA_TOKEN=<long-lived-access-token>
 go test ./... -tags=e2e -v
+
+# Coverage report
+go test ./... -coverprofile=coverage.out
+go tool cover -html=coverage.out
 ```
 
 ## Reporting Issues

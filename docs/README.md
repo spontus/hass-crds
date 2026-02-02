@@ -23,6 +23,7 @@
 | [Entity Type Coverage](future-entity-types.md) | All 28 supported entity types |
 | [Troubleshooting](troubleshooting.md) | Common issues and solutions |
 | [Security](security.md) | Security best practices and hardening |
+| [Testing](testing.md) | Unit tests, integration tests, and E2E testing strategy |
 
 ## Supported Entity Types
 
