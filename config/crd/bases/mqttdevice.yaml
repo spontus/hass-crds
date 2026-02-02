@@ -1,0 +1,139 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mqttdevices.mqtt.home-assistant.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.14.0
+  labels:
+    app.kubernetes.io/name: hass-crds
+    app.kubernetes.io/component: crds
+spec:
+  group: mqtt.home-assistant.io
+  names:
+    kind: MQTTDevice
+    listKind: MQTTDeviceList
+    plural: mqttdevices
+    singular: mqttdevice
+    shortNames:
+    - dev
+    categories:
+    - hass
+    - mqtt
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    additionalPrinterColumns:
+    - name: Name
+      type: string
+      description: Display name in Home Assistant
+      jsonPath: .spec.name
+    - name: Published
+      type: string
+      description: Whether discovery has been published
+      jsonPath: .status.conditions[?(@.type=='Published')].status
+    - name: Last Published
+      type: date
+      description: When discovery was last published
+      jsonPath: .status.lastPublished
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp
+    schema:
+      openAPIV3Schema:
+        type: object
+        description: Shared device definition for multiple MQTT entities
+        properties:
+          apiVersion:
+            type: string
+            description: APIVersion defines the versioned schema of this representation
+              of an object
+          kind:
+            type: string
+            description: Kind is a string value representing the REST resource this
+              object represents
+          metadata:
+            type: object
+          spec:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Device display name
+              identifiers:
+                type: array
+                items:
+                  type: string
+                description: List of identifiers (at least one of identifiers or connections
+                  is needed)
+              connections:
+                type: array
+                items:
+                  type: array
+                  items:
+                    type: string
+                description: List of [type, value] pairs (e.g. [[mac, aa:bb:cc:dd:ee:ff]])
+              manufacturer:
+                type: string
+                description: Device manufacturer
+              model:
+                type: string
+                description: Device model
+              modelId:
+                type: string
+                description: Device model identifier
+              serialNumber:
+                type: string
+                description: Device serial number
+              hwVersion:
+                type: string
+                description: Hardware version
+              swVersion:
+                type: string
+                description: Software version
+              suggestedArea:
+                type: string
+                description: Suggested area in Home Assistant (e.g. Living Room)
+              configurationUrl:
+                type: string
+                description: URL for device configuration
+              viaDevice:
+                type: string
+                description: Identifier of device that routes messages
+          status:
+            type: object
+            properties:
+              lastPublished:
+                type: string
+                format: date-time
+                description: Timestamp of last discovery publish
+              discoveryTopic:
+                type: string
+                description: MQTT discovery topic path
+              conditions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: Condition type (Published, MQTTConnected)
+                    status:
+                      type: string
+                      enum:
+                      - 'True'
+                      - 'False'
+                      - Unknown
+                    lastTransitionTime:
+                      type: string
+                      format: date-time
+                    reason:
+                      type: string
+                    message:
+                      type: string
+                  required:
+                  - type
+                  - status
+    subresources:
+      status: {}
