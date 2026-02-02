@@ -205,3 +205,17 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Go
+bin/
+testbin/
+*.exe
+*.exe~
+*.dll
+*.dylib
+*.test
+*.out
+vendor/
+
+# Kubebuilder artifacts
+cover.out
