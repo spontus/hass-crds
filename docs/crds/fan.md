@@ -73,3 +73,11 @@ spec:
     manufacturer: "Custom"
     model: "Smart Fan Controller"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTButton](button.md), [MQTTSwitch](switch.md), [MQTTLight](light.md), [MQTTCover](cover.md), [MQTTLock](lock.md), [MQTTValve](valve.md)

@@ -58,7 +58,7 @@ Each Home Assistant entity type (button, switch, light, etc.) gets its own CRD r
 | Component | Kind | Resource (plural) | Singular |
 |---|---|---|---|
 | `button` | `MQTTButton` | `mqttbuttons` | `mqttbutton` |
-| `switch` | `MQTTSwitch` | `mqttswitch` | `mqttswitch` |
+| `switch` | `MQTTSwitch` | `mqttswitches` | `mqttswitch` |
 | `light` | `MQTTLight` | `mqttlights` | `mqttlight` |
 | `sensor` | `MQTTSensor` | `mqttsensors` | `mqttsensor` |
 | `binary_sensor` | `MQTTBinarySensor` | `mqttbinarysensors` | `mqttbinarysensor` |

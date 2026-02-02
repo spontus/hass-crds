@@ -44,3 +44,11 @@ spec:
     manufacturer: "Sonoff"
     model: "Basic R2"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTButton](button.md), [MQTTLight](light.md), [MQTTFan](fan.md), [MQTTCover](cover.md), [MQTTLock](lock.md), [MQTTValve](valve.md)

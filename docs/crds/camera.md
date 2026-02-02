@@ -35,3 +35,11 @@ spec:
     model: "Smart Doorbell v2"
     suggestedArea: "Front Door"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTImage](image.md), [MQTTScene](scene.md)

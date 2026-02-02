@@ -7,7 +7,7 @@ All CRDs belong to the API group `mqtt.home-assistant.io/v1alpha1`.
 | Kind | Resource | HA Component | Description |
 |---|---|---|---|
 | [`MQTTButton`](button.md) | `mqttbuttons` | `button` | Stateless trigger |
-| [`MQTTSwitch`](switch.md) | `mqttswitch` | `switch` | On/off toggle with state |
+| [`MQTTSwitch`](switch.md) | `mqttswitches` | `switch` | On/off toggle with state |
 | [`MQTTLight`](light.md) | `mqttlights` | `light` | Light with optional brightness, color, effects |
 | [`MQTTSensor`](sensor.md) | `mqttsensors` | `sensor` | Read-only sensor value |
 | [`MQTTBinarySensor`](binary-sensor.md) | `mqttbinarysensors` | `binary_sensor` | On/off read-only sensor |

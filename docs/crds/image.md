@@ -39,3 +39,11 @@ spec:
     model: "ESP32-CAM"
     suggestedArea: "Garden"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTCamera](camera.md), [MQTTScene](scene.md)

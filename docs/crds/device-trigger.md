@@ -39,3 +39,11 @@ spec:
     manufacturer: "Custom"
     model: "Wireless Button"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTDeviceTracker](device-tracker.md), [MQTTTag](tag.md), [MQTTEvent](event.md)

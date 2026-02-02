@@ -58,3 +58,11 @@ spec:
     identifiers:
       - "garage-controller-01"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTButton](button.md), [MQTTSwitch](switch.md), [MQTTLight](light.md), [MQTTFan](fan.md), [MQTTLock](lock.md), [MQTTValve](valve.md)

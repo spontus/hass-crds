@@ -47,3 +47,11 @@ spec:
     identifiers:
       - "dashboard-display-01"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTSelect](select.md), [MQTTText](text.md)

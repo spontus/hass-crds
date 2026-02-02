@@ -40,3 +40,11 @@ spec:
     manufacturer: "Custom"
     model: "BLE Scanner"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTTag](tag.md), [MQTTEvent](event.md), [MQTTDeviceTrigger](device-trigger.md)

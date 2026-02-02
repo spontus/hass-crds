@@ -35,3 +35,11 @@ spec:
     manufacturer: "Custom"
     model: "Scene Manager"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTCamera](camera.md), [MQTTImage](image.md)

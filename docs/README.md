@@ -15,12 +15,14 @@
 |---|---|
 | [Architecture](architecture.md) | Design decisions, API group, reconciliation model |
 | [Getting Started](getting-started.md) | Install CRDs, deploy the controller, verify |
-| [Controller](controller.md) | MQTT connection, reconciliation loop, deletion, status |
+| [Controller](controller.md) | MQTT connection, TLS, reconciliation loop, deletion, status |
 | [CRD Reference](crds/README.md) | All supported entity types and their fields |
 | [Common Fields](crds/common-fields.md) | Shared fields across all CRD types |
 | [Examples](examples/README.md) | Copy-pasteable YAML manifests for every entity type |
 | [Admission Webhooks](admission-webhooks.md) | Validating webhook for cross-resource checks |
 | [Entity Type Coverage](future-entity-types.md) | All 28 supported entity types |
+| [Troubleshooting](troubleshooting.md) | Common issues and solutions |
+| [Security](security.md) | Security best practices and hardening |
 
 ## Supported Entity Types
 

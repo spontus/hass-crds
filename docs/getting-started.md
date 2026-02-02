@@ -12,7 +12,7 @@
 Apply the Custom Resource Definitions to your cluster:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/spontus/hass-crds/main/config/crd/bases/
+kubectl apply -f https://raw.githubusercontent.com/spontus/hass-crds/main/config/crd/crds.yaml
 ```
 
 Verify the CRDs are installed:
@@ -24,16 +24,16 @@ kubectl get crds | grep mqtt.home-assistant.io
 You should see output like:
 
 ```
-mqttbuttons.mqtt.home-assistant.io        2025-01-15T10:00:00Z
-mqttswitch.mqtt.home-assistant.io         2025-01-15T10:00:00Z
-mqttlights.mqtt.home-assistant.io         2025-01-15T10:00:00Z
-mqttsensors.mqtt.home-assistant.io        2025-01-15T10:00:00Z
-mqttbinarysensors.mqtt.home-assistant.io  2025-01-15T10:00:00Z
-mqttcovers.mqtt.home-assistant.io         2025-01-15T10:00:00Z
-mqttclimates.mqtt.home-assistant.io       2025-01-15T10:00:00Z
-mqttnumbers.mqtt.home-assistant.io        2025-01-15T10:00:00Z
-mqttselects.mqtt.home-assistant.io        2025-01-15T10:00:00Z
-mqtttexts.mqtt.home-assistant.io          2025-01-15T10:00:00Z
+mqttbuttons.mqtt.home-assistant.io        <timestamp>
+mqttswitch.mqtt.home-assistant.io         <timestamp>
+mqttlights.mqtt.home-assistant.io         <timestamp>
+mqttsensors.mqtt.home-assistant.io        <timestamp>
+mqttbinarysensors.mqtt.home-assistant.io  <timestamp>
+mqttcovers.mqtt.home-assistant.io         <timestamp>
+mqttclimates.mqtt.home-assistant.io       <timestamp>
+mqttnumbers.mqtt.home-assistant.io        <timestamp>
+mqttselects.mqtt.home-assistant.io        <timestamp>
+mqtttexts.mqtt.home-assistant.io          <timestamp>
 ```
 
 ## Deploy the Controller
@@ -89,7 +89,7 @@ rules:
   - apiGroups: ["mqtt.home-assistant.io"]
     resources:
       - mqttbuttons
-      - mqttswitch
+      - mqttswitches
       - mqttlights
       - mqttsensors
       - mqttbinarysensors
@@ -98,11 +98,30 @@ rules:
       - mqttnumbers
       - mqttselects
       - mqtttexts
+      - mqttfans
+      - mqttlocks
+      - mqttsirens
+      - mqttalarmcontrolpanels
+      - mqtthumidifiers
+      - mqttvacuums
+      - mqttvalves
+      - mqttwaterheaters
+      - mqttlawnmowers
+      - mqttcameras
+      - mqttdevicetrackers
+      - mqttdevicetriggers
+      - mqttevents
+      - mqttimages
+      - mqttscenes
+      - mqtttags
+      - mqttupdates
+      - mqttnotifys
+      - mqttdevices
     verbs: ["get", "list", "watch", "update", "patch"]
   - apiGroups: ["mqtt.home-assistant.io"]
     resources:
       - mqttbuttons/status
-      - mqttswitch/status
+      - mqttswitches/status
       - mqttlights/status
       - mqttsensors/status
       - mqttbinarysensors/status
@@ -111,6 +130,24 @@ rules:
       - mqttnumbers/status
       - mqttselects/status
       - mqtttexts/status
+      - mqttfans/status
+      - mqttlocks/status
+      - mqttsirens/status
+      - mqttalarmcontrolpanels/status
+      - mqtthumidifiers/status
+      - mqttvacuums/status
+      - mqttvalves/status
+      - mqttwaterheaters/status
+      - mqttlawnmowers/status
+      - mqttcameras/status
+      - mqttdevicetrackers/status
+      - mqttdevicetriggers/status
+      - mqttevents/status
+      - mqttimages/status
+      - mqttscenes/status
+      - mqtttags/status
+      - mqttupdates/status
+      - mqttnotifys/status
     verbs: ["get", "update", "patch"]
   - apiGroups: [""]
     resources: ["events"]

@@ -30,6 +30,88 @@ On startup, the controller:
 | `DEFAULT_TOPIC_TEMPLATE` | No | -- | Go template for auto-generating topics. Available variables: `{{.Namespace}}`, `{{.Name}}`, `{{.Component}}` (e.g. `{{.Component}}/{{.Namespace}}/{{.Name}}`) |
 | `WATCH_NAMESPACE` | No | Controller's namespace | Namespace to watch for CRD instances. Defaults to the controller's own namespace. |
 
+## TLS Configuration
+
+To secure the MQTT connection with TLS, configure the following environment variables:
+
+### Basic TLS (Server Certificate Verification)
+
+```yaml
+env:
+  - name: MQTT_HOST
+    value: "mqtt.example.com"
+  - name: MQTT_PORT
+    value: "8883"
+  - name: MQTT_TLS_ENABLED
+    value: "true"
+  - name: MQTT_TLS_CA_CERT
+    value: "/etc/mqtt/certs/ca.crt"
+```
+
+Mount the CA certificate via a ConfigMap or Secret:
+
+```yaml
+volumes:
+  - name: mqtt-certs
+    secret:
+      secretName: mqtt-ca-cert
+volumeMounts:
+  - name: mqtt-certs
+    mountPath: /etc/mqtt/certs
+    readOnly: true
+```
+
+### Mutual TLS (Client Certificate Authentication)
+
+For brokers requiring client certificate authentication:
+
+```yaml
+env:
+  - name: MQTT_TLS_ENABLED
+    value: "true"
+  - name: MQTT_TLS_CA_CERT
+    value: "/etc/mqtt/certs/ca.crt"
+  - name: MQTT_TLS_CLIENT_CERT
+    value: "/etc/mqtt/certs/client.crt"
+  - name: MQTT_TLS_CLIENT_KEY
+    value: "/etc/mqtt/certs/client.key"
+```
+
+### TLS with Username/Password
+
+TLS and username/password authentication can be combined:
+
+```yaml
+env:
+  - name: MQTT_TLS_ENABLED
+    value: "true"
+  - name: MQTT_TLS_CA_CERT
+    value: "/etc/mqtt/certs/ca.crt"
+  - name: MQTT_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: mqtt-credentials
+        key: username
+  - name: MQTT_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: mqtt-credentials
+        key: password
+```
+
+### Troubleshooting TLS
+
+If TLS connection fails, check the controller logs for errors:
+
+```bash
+kubectl logs -n hass-crds deployment/hass-crds-controller | grep -i tls
+```
+
+Common issues:
+- **Certificate not found**: Verify the mount path and file permissions
+- **Certificate expired**: Check certificate validity with `openssl x509 -in ca.crt -noout -dates`
+- **Hostname mismatch**: Ensure `MQTT_HOST` matches the certificate's CN or SAN
+
 ## Reconciliation Loop
 
 The controller uses a standard Kubernetes reconciliation pattern:
@@ -173,16 +255,16 @@ Example status:
 
 ```yaml
 status:
-  lastPublished: "2025-01-15T10:30:00Z"
+  lastPublished: "<timestamp>"
   discoveryTopic: "homeassistant/button/default-restart-server/config"
   conditions:
     - type: Published
       status: "True"
-      lastTransitionTime: "2025-01-15T10:30:00Z"
+      lastTransitionTime: "<timestamp>"
       message: "Discovery payload published successfully"
     - type: MQTTConnected
       status: "True"
-      lastTransitionTime: "2025-01-15T10:00:00Z"
+      lastTransitionTime: "<timestamp>"
 ```
 
 ## Error Handling

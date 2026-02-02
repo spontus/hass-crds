@@ -90,3 +90,10 @@ spec:
   suggestedArea: "Living Room"
   configurationUrl: "http://sensor-hub-01.local"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)

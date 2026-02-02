@@ -44,3 +44,11 @@ spec:
     model: "AutoMow v2"
     suggestedArea: "Garden"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTVacuum](vacuum.md), [MQTTUpdate](update.md)

@@ -34,3 +34,11 @@ spec:
     model: "NFC Scanner"
     suggestedArea: "Entrance"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTDeviceTracker](device-tracker.md), [MQTTEvent](event.md), [MQTTDeviceTrigger](device-trigger.md)

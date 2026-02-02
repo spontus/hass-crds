@@ -50,3 +50,11 @@ spec:
     manufacturer: "Custom"
     model: "Multi-Tone Siren"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTAlarmControlPanel](alarm-control-panel.md), [MQTTNotify](notify.md)

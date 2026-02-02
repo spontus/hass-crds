@@ -62,3 +62,11 @@ spec:
     manufacturer: "Custom"
     model: "Smart Water Heater"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTClimate](climate.md), [MQTTHumidifier](humidifier.md)

@@ -35,3 +35,11 @@ spec:
     model: "E-Ink Display"
     suggestedArea: "Kitchen"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTSiren](siren.md), [MQTTAlarmControlPanel](alarm-control-panel.md)

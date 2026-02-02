@@ -61,3 +61,11 @@ spec:
     manufacturer: "Custom"
     model: "CleanBot v3"
 ```
+
+---
+
+## See Also
+
+- [CRD Reference](README.md) - All entity types
+- [Common Fields](common-fields.md) - Shared fields (device, availability, MQTT options)
+- **Related**: [MQTTLawnMower](lawn-mower.md), [MQTTUpdate](update.md)
