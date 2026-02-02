@@ -47,16 +47,18 @@ spec:
         properties:
           apiVersion:
             type: string
-            description: APIVersion defines the versioned schema of this representation
-              of an object
+            description: APIVersion defines the versioned schema of this representation of an object
           kind:
             type: string
-            description: Kind is a string value representing the REST resource this
-              object represents
+            description: Kind is a string value representing the REST resource this object represents
           metadata:
             type: object
           spec:
             type: object
+            x-kubernetes-validations:
+            - rule: (has(self.identifiers) && size(self.identifiers) > 0) || (has(self.connections) &&
+                size(self.connections) > 0)
+              message: At least one of identifiers or connections must be specified
             properties:
               name:
                 type: string
@@ -65,14 +67,15 @@ spec:
                 type: array
                 items:
                   type: string
-                description: List of identifiers (at least one of identifiers or connections
-                  is needed)
+                description: List of identifiers (at least one of identifiers or connections is needed)
               connections:
                 type: array
                 items:
                   type: array
                   items:
                     type: string
+                  minItems: 2
+                  maxItems: 2
                 description: List of [type, value] pairs (e.g. [[mac, aa:bb:cc:dd:ee:ff]])
               manufacturer:
                 type: string

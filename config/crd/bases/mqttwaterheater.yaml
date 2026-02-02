@@ -17,6 +17,8 @@ spec:
     categories:
     - hass
     - mqtt
+    shortNames:
+    - wh
   scope: Namespaced
   versions:
   - name: v1alpha1
@@ -45,12 +47,10 @@ spec:
         properties:
           apiVersion:
             type: string
-            description: APIVersion defines the versioned schema of this representation
-              of an object
+            description: APIVersion defines the versioned schema of this representation of an object
           kind:
             type: string
-            description: Kind is a string value representing the REST resource this
-              object represents
+            description: Kind is a string value representing the REST resource this object represents
           metadata:
             type: object
           spec:
@@ -90,8 +90,7 @@ spec:
                 type: array
                 items:
                   type: string
-                description: Supported modes (e.g. off, eco, electric, gas, heat_pump,
-                  high_demand, performance)
+                description: Supported modes (e.g. off, eco, electric, gas, heat_pump, high_demand, performance)
               powerCommandTopic:
                 type: string
                 description: Topic to publish on/off commands
@@ -124,8 +123,7 @@ spec:
                 description: Display name in Home Assistant
               uniqueId:
                 type: string
-                description: Unique identifier for HA entity registry (defaults to
-                  <namespace>-<name>)
+                description: Unique identifier for HA entity registry (defaults to <namespace>-<name>)
               icon:
                 type: string
                 description: MDI icon (e.g. mdi:thermometer)
@@ -152,14 +150,15 @@ spec:
                     type: array
                     items:
                       type: string
-                    description: List of identifiers (at least one of identifiers
-                      or connections is needed)
+                    description: List of identifiers (at least one of identifiers or connections is needed)
                   connections:
                     type: array
                     items:
                       type: array
                       items:
                         type: string
+                      minItems: 2
+                      maxItems: 2
                     description: List of [type, value] pairs (e.g. [[mac, aa:bb:cc:dd:ee:ff]])
                   manufacturer:
                     type: string
@@ -188,10 +187,13 @@ spec:
                   viaDevice:
                     type: string
                     description: Identifier of device that routes messages
+                x-kubernetes-validations:
+                - rule: (has(self.identifiers) && size(self.identifiers) > 0) || (has(self.connections)
+                    && size(self.connections) > 0)
+                  message: At least one of identifiers or connections must be specified
               deviceRef:
                 type: object
-                description: Reference to an MQTTDevice resource instead of inline
-                  device block
+                description: Reference to an MQTTDevice resource instead of inline device block
                 properties:
                   name:
                     type: string
@@ -244,8 +246,11 @@ spec:
                 description: Template to extract attributes from payload
               rediscoverInterval:
                 type: string
-                description: How often to re-publish the discovery config payload
-                  (e.g. 5m, 1h)
+                description: How often to re-publish the discovery config payload (e.g. 5m, 1h)
+                pattern: ^([0-9]+[smh])+$
+            x-kubernetes-validations:
+            - rule: '!(has(self.device) && has(self.deviceRef))'
+              message: Cannot specify both device and deviceRef
           status:
             type: object
             properties:
