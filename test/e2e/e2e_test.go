@@ -1162,4 +1162,267 @@ spec:
 			}, 90*time.Second, 5*time.Second).Should(BeTrue(), "Entity should be removed from Home Assistant")
 		})
 	})
+
+	Context("Home Assistant State Verification", func() {
+		It("should update switch state when MQTT state is published", func() {
+			By("Creating an MQTTSwitch resource")
+			yaml := `
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSwitch
+metadata:
+  name: state-test-switch
+  namespace: hass-crds-e2e
+spec:
+  name: "State Test Switch"
+  commandTopic: "e2e/switch/state-test/set"
+  stateTopic: "e2e/switch/state-test/state"
+  payloadOn: "ON"
+  payloadOff: "OFF"
+`
+			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd.Stdin = strings.NewReader(yaml)
+			_, err := utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			entityID := "switch.state_test_switch"
+			Eventually(func() bool {
+				exists, _ := utils.HAEntityExists(entityID)
+				return exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue())
+
+			By("Publishing ON state and verifying")
+			err = utils.PublishMQTTMessage("e2e/switch/state-test/state", "ON")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"on"`))
+
+			By("Publishing OFF state and verifying")
+			err = utils.PublishMQTTMessage("e2e/switch/state-test/state", "OFF")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"off"`))
+		})
+
+		It("should update binary sensor state when MQTT state is published", func() {
+			By("Creating an MQTTBinarySensor resource")
+			yaml := `
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTBinarySensor
+metadata:
+  name: state-test-motion
+  namespace: hass-crds-e2e
+spec:
+  name: "State Test Motion"
+  stateTopic: "e2e/binary_sensor/state-test/state"
+  deviceClass: "motion"
+  payloadOn: "detected"
+  payloadOff: "clear"
+`
+			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd.Stdin = strings.NewReader(yaml)
+			_, err := utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			entityID := "binary_sensor.state_test_motion"
+			Eventually(func() bool {
+				exists, _ := utils.HAEntityExists(entityID)
+				return exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue())
+
+			By("Publishing detected state and verifying")
+			err = utils.PublishMQTTMessage("e2e/binary_sensor/state-test/state", "detected")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"on"`))
+
+			By("Publishing clear state and verifying")
+			err = utils.PublishMQTTMessage("e2e/binary_sensor/state-test/state", "clear")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"off"`))
+		})
+
+		It("should update number state when MQTT state is published", func() {
+			By("Creating an MQTTNumber resource")
+			yaml := `
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTNumber
+metadata:
+  name: state-test-brightness
+  namespace: hass-crds-e2e
+spec:
+  name: "State Test Brightness"
+  commandTopic: "e2e/number/state-test/set"
+  stateTopic: "e2e/number/state-test/state"
+  min: 0
+  max: 100
+`
+			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd.Stdin = strings.NewReader(yaml)
+			_, err := utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			entityID := "number.state_test_brightness"
+			Eventually(func() bool {
+				exists, _ := utils.HAEntityExists(entityID)
+				return exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue())
+
+			By("Publishing numeric state and verifying")
+			err = utils.PublishMQTTMessage("e2e/number/state-test/state", "75")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"75"`))
+
+			By("Publishing different value and verifying")
+			err = utils.PublishMQTTMessage("e2e/number/state-test/state", "25")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"25"`))
+		})
+
+		It("should update select state when MQTT state is published", func() {
+			By("Creating an MQTTSelect resource")
+			yaml := `
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSelect
+metadata:
+  name: state-test-mode
+  namespace: hass-crds-e2e
+spec:
+  name: "State Test Mode"
+  commandTopic: "e2e/select/state-test/set"
+  stateTopic: "e2e/select/state-test/state"
+  options:
+    - "auto"
+    - "manual"
+    - "eco"
+`
+			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd.Stdin = strings.NewReader(yaml)
+			_, err := utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			entityID := "select.state_test_mode"
+			Eventually(func() bool {
+				exists, _ := utils.HAEntityExists(entityID)
+				return exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue())
+
+			By("Publishing 'eco' state and verifying")
+			err = utils.PublishMQTTMessage("e2e/select/state-test/state", "eco")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"eco"`))
+
+			By("Publishing 'manual' state and verifying")
+			err = utils.PublishMQTTMessage("e2e/select/state-test/state", "manual")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"manual"`))
+		})
+
+		It("should update text state when MQTT state is published", func() {
+			By("Creating an MQTTText resource")
+			yaml := `
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTText
+metadata:
+  name: state-test-text
+  namespace: hass-crds-e2e
+spec:
+  name: "State Test Text"
+  commandTopic: "e2e/text/state-test/set"
+  stateTopic: "e2e/text/state-test/state"
+`
+			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd.Stdin = strings.NewReader(yaml)
+			_, err := utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			entityID := "text.state_test_text"
+			Eventually(func() bool {
+				exists, _ := utils.HAEntityExists(entityID)
+				return exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue())
+
+			By("Publishing text state and verifying")
+			err = utils.PublishMQTTMessage("e2e/text/state-test/state", "Hello World")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"Hello World"`))
+		})
+
+		It("should update light state when MQTT state is published", func() {
+			By("Creating an MQTTLight resource")
+			yaml := `
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTLight
+metadata:
+  name: state-test-light
+  namespace: hass-crds-e2e
+spec:
+  name: "State Test Light"
+  commandTopic: "e2e/light/state-test/set"
+  stateTopic: "e2e/light/state-test/state"
+  payloadOn: "ON"
+  payloadOff: "OFF"
+`
+			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd.Stdin = strings.NewReader(yaml)
+			_, err := utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			entityID := "light.state_test_light"
+			Eventually(func() bool {
+				exists, _ := utils.HAEntityExists(entityID)
+				return exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue())
+
+			By("Publishing ON state and verifying")
+			err = utils.PublishMQTTMessage("e2e/light/state-test/state", "ON")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"on"`))
+
+			By("Publishing OFF state and verifying")
+			err = utils.PublishMQTTMessage("e2e/light/state-test/state", "OFF")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() string {
+				state, _ := utils.GetHAEntityState(entityID)
+				return state
+			}, 30*time.Second, 2*time.Second).Should(ContainSubstring(`"state":"off"`))
+		})
+	})
 })
