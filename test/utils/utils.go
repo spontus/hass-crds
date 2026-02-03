@@ -33,14 +33,10 @@ const (
 	ControllerImage   = "hass-crds-controller:e2e"
 	KindConfigFile    = "test/e2e/kind-config.yaml"
 	ManifestsDir      = "test/e2e/manifests"
-	MosquittoManifest = "test/e2e/manifests/mosquitto.yaml"
+	MQTTBrokerManifest = "test/e2e/manifests/mosquitto.yaml"
 	HAManifest        = "test/e2e/manifests/homeassistant.yaml"
 	ControllerManfest = "test/e2e/manifests/controller.yaml"
 )
-
-func warnError(err error) {
-	fmt.Fprintf(GinkgoWriter, "warning: %v\n", err)
-}
 
 // Run executes the provided command within the project directory
 func Run(cmd *exec.Cmd) ([]byte, error) {
@@ -138,17 +134,17 @@ func InstallCRDs() error {
 	return err
 }
 
-// DeployMosquitto deploys the Mosquitto MQTT broker
+// DeployMosquitto deploys the MQTT broker
 func DeployMosquitto() error {
 	projectDir, _ := GetProjectDir()
-	manifestPath := filepath.Join(projectDir, MosquittoManifest)
+	manifestPath := filepath.Join(projectDir, MQTTBrokerManifest)
 
 	cmd := exec.Command("kubectl", "apply", "-f", manifestPath)
 	if _, err := Run(cmd); err != nil {
 		return err
 	}
 
-	// Wait for Mosquitto to be ready
+	// Wait for broker to be ready
 	return WaitForDeployment("mosquitto", TestNamespace, 120*time.Second)
 }
 
@@ -217,8 +213,34 @@ func WaitForMQTTConnection(timeout time.Duration) error {
 func CleanupTestResources() error {
 	// Delete all MQTT resources in test namespace
 	resources := []string{
-		"mqttbuttons", "mqttswitches", "mqttsensors", "mqttlights",
-		"mqttbinarysensors", "mqttcovers", "mqttclimates",
+		"mqttbuttons",
+		"mqttswitches",
+		"mqttsensors",
+		"mqttbinarysensors",
+		"mqttnumbers",
+		"mqttselects",
+		"mqtttexts",
+		"mqttscenes",
+		"mqtttags",
+		"mqttlights",
+		"mqttcovers",
+		"mqttlocks",
+		"mqttvalves",
+		"mqttfans",
+		"mqttsirens",
+		"mqttcameras",
+		"mqttimages",
+		"mqttnotifys",
+		"mqttupdates",
+		"mqttclimates",
+		"mqtthumidifiers",
+		"mqttwaterheaters",
+		"mqttvacuums",
+		"mqttlawnmowers",
+		"mqttalarmcontrolpanels",
+		"mqttdevicetrackers",
+		"mqttdevicetriggers",
+		"mqttevents",
 	}
 
 	for _, resource := range resources {
@@ -234,8 +256,6 @@ func CleanupTestResources() error {
 
 // GetHAEntityState queries Home Assistant API for entity state
 func GetHAEntityState(entityID string) (string, error) {
-	// Port-forward to HA or use NodePort
-	// For Kind with NodePort, we can access via localhost
 	cmd := exec.Command("kubectl", "exec",
 		"deployment/homeassistant",
 		"-n", TestNamespace,
@@ -249,6 +269,21 @@ func GetHAEntityState(entityID string) (string, error) {
 		return "", err
 	}
 	return string(output), nil
+}
+
+// WaitForHAEntity waits for an entity to appear in Home Assistant
+func WaitForHAEntity(entityID string, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+
+	for time.Now().Before(deadline) {
+		state, err := GetHAEntityState(entityID)
+		if err == nil && !strings.Contains(state, "not found") && len(state) > 2 {
+			return nil
+		}
+		time.Sleep(2 * time.Second)
+	}
+
+	return fmt.Errorf("timeout waiting for entity %s", entityID)
 }
 
 // PublishMQTTMessage publishes a message to MQTT (for testing state topics)
