@@ -52,7 +52,7 @@ func TestBuilder_Set(t *testing.T) {
 	b := New()
 	b.Set("commandTopic", "home/button/cmd")
 	b.Set("name", "Test Button")
-	b.Set("emptyString", "")      // Should be skipped
+	b.Set("emptyString", "")        // Should be skipped
 	b.Set("emptySlice", []string{}) // Should be skipped
 
 	data := b.BuildMap()

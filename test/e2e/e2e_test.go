@@ -90,14 +90,19 @@ spec:
 				return true
 			}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
-			// Note: Status update currently has a bug (mqttButtonWrapper type not registered)
-			// Skip status verification until fixed
-			By("Verifying MQTT message was published (status check skipped due to controller bug)")
-			// The fact that we received the MQTT message above confirms publishing works
+			By("Verifying resource status was updated")
+			Eventually(func() bool {
+				cmd := exec.Command("kubectl", "get", "mqttbutton", "test-button",
+					"-n", "hass-crds-e2e", "-o", "jsonpath={.status.discoveryTopic}")
+				out, err := utils.Run(cmd)
+				if err != nil {
+					return false
+				}
+				return strings.Contains(string(out), "homeassistant/button")
+			}, 30*time.Second, 2*time.Second).Should(BeTrue())
 		})
 
 		It("should publish empty payload when deleted", func() {
-			Skip("Skipped: Controller status update bug prevents finalizer removal")
 			By("Creating an MQTTButton resource")
 			buttonYAML := `
 apiVersion: mqtt.home-assistant.io/v1alpha1
@@ -115,8 +120,9 @@ spec:
 			Expect(err).NotTo(HaveOccurred())
 
 			By("Waiting for initial discovery message")
+			topic := "homeassistant/button/hass-crds-e2e/delete-test-button/config"
 			Eventually(func() bool {
-				msg, err := utils.SubscribeMQTTMessage("homeassistant/button/hass-crds-e2e/delete-test-button/config", 10*time.Second)
+				msg, err := utils.SubscribeMQTTMessage(topic, 10*time.Second)
 				return err == nil && len(msg) > 0
 			}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
@@ -125,14 +131,18 @@ spec:
 			_, err = utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
 
-			By("Verifying empty payload is published (entity removal)")
-			// The retained message should now be empty
+			By("Verifying retained message is cleared (entity removal)")
+			// Publishing an empty retained message clears the topic's retained message.
+			// After deletion, subscribing should either:
+			// 1. Return an empty message (if subscribed during deletion), or
+			// 2. Timeout with no message (retained message was cleared)
 			Eventually(func() bool {
-				msg, err := utils.SubscribeMQTTMessage("homeassistant/button/hass-crds-e2e/delete-test-button/config", 10*time.Second)
+				msg, err := utils.SubscribeMQTTMessage(topic, 5*time.Second)
 				if err != nil {
-					return false
+					// Timeout indicates no retained message (success - it was cleared)
+					return true
 				}
-				// Empty payload indicates deletion
+				// Empty payload also indicates deletion
 				return len(strings.TrimSpace(msg)) == 0
 			}, 60*time.Second, 5*time.Second).Should(BeTrue())
 		})
@@ -272,8 +282,9 @@ spec:
 			Expect(err).NotTo(HaveOccurred())
 
 			By("Verifying availability in discovery message")
+			availTopic := "homeassistant/sensor/hass-crds-e2e/sensor-with-availability/config"
 			Eventually(func() bool {
-				msg, err := utils.SubscribeMQTTMessage("homeassistant/sensor/hass-crds-e2e/sensor-with-availability/config", 10*time.Second)
+				msg, err := utils.SubscribeMQTTMessage(availTopic, 10*time.Second)
 				if err != nil {
 					return false
 				}

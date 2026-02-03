@@ -167,3 +167,7 @@ func (w *mqttButtonWrapper) GetCommonStatus() *mqttv1alpha1.CommonStatus {
 func (w *mqttButtonWrapper) SetCommonStatus(status mqttv1alpha1.CommonStatus) {
 	w.Status.CommonStatus = status
 }
+
+func (w *mqttButtonWrapper) GetObject() client.Object {
+	return w.MQTTButton
+}

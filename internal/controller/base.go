@@ -55,6 +55,10 @@ type EntityObject interface {
 	GetCommonSpec() *mqttv1alpha1.CommonSpec
 	GetCommonStatus() *mqttv1alpha1.CommonStatus
 	SetCommonStatus(status mqttv1alpha1.CommonStatus)
+	// GetObject returns the underlying client.Object for status updates.
+	// Wrapper types must implement this to return the actual CRD type
+	// that is registered with the scheme.
+	GetObject() client.Object
 }
 
 // PayloadBuilder is a function that builds the discovery payload for an entity.
@@ -172,7 +176,7 @@ func (r *BaseReconciler) UpdateStatusPublished(ctx context.Context, obj EntityOb
 	r.SetCondition(status, mqttv1alpha1.ConditionTypePublished, mqttv1alpha1.ConditionTrue, "Success", "Discovery message published")
 
 	obj.SetCommonStatus(*status)
-	return r.Client.Status().Update(ctx, obj)
+	return r.Client.Status().Update(ctx, obj.GetObject())
 }
 
 // UpdateStatusFailed updates the status to reflect a failed publish.
@@ -182,7 +186,7 @@ func (r *BaseReconciler) UpdateStatusFailed(ctx context.Context, obj EntityObjec
 	r.SetCondition(status, mqttv1alpha1.ConditionTypePublished, mqttv1alpha1.ConditionFalse, reason, message)
 
 	obj.SetCommonStatus(*status)
-	return r.Client.Status().Update(ctx, obj)
+	return r.Client.Status().Update(ctx, obj.GetObject())
 }
 
 // SetCondition updates or adds a condition to the status.

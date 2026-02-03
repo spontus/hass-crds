@@ -159,3 +159,7 @@ func (w *mqttSensorWrapper) GetCommonStatus() *mqttv1alpha1.CommonStatus {
 func (w *mqttSensorWrapper) SetCommonStatus(status mqttv1alpha1.CommonStatus) {
 	w.Status.CommonStatus = status
 }
+
+func (w *mqttSensorWrapper) GetObject() client.Object {
+	return w.MQTTSensor
+}

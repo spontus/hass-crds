@@ -1,11 +1,84 @@
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  labels:
-    app.kubernetes.io/name: kb-init
-    app.kubernetes.io/managed-by: kustomize
   name: manager-role
 rules:
-- apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttbuttons
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttbuttons/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttbuttons/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttsensors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttsensors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttsensors/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttswitches
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttswitches/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttswitches/status
+  verbs:
+  - get
+  - patch
+  - update

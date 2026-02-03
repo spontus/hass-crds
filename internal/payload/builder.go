@@ -90,7 +90,7 @@ func (b *Builder) SetRaw(key string, value interface{}) *Builder {
 
 // SetDevice adds a device block to the payload.
 func (b *Builder) SetDevice(device map[string]interface{}) *Builder {
-	if device != nil && len(device) > 0 {
+	if len(device) > 0 {
 		b.data["device"] = device
 	}
 	return b

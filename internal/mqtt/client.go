@@ -231,11 +231,11 @@ func (c *PahoClient) IsConnected() bool {
 
 // MockClient is a mock MQTT client for testing.
 type MockClient struct {
-	connected      bool
-	publishedMsgs  []PublishedMessage
-	mu             sync.Mutex
-	publishErr     error
-	connectErr     error
+	connected     bool
+	publishedMsgs []PublishedMessage
+	mu            sync.Mutex
+	publishErr    error
+	connectErr    error
 }
 
 // PublishedMessage records a published message for testing.
