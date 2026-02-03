@@ -37,33 +37,23 @@ spec:
       type: date
       description: When discovery was last published
       jsonPath: .status.lastPublished
-    - name: TempUnit
-      type: string
-      jsonPath: .spec.temperatureUnit
-    - name: Device
-      type: string
-      description: Inline device name
-      jsonPath: .spec.device.name
-      priority: 1
-    - name: DeviceRef
-      type: string
-      description: Referenced MQTTDevice
-      jsonPath: .spec.deviceRef.name
-      priority: 1
     - name: Age
       type: date
       jsonPath: .metadata.creationTimestamp
     schema:
       openAPIV3Schema:
         type: object
-        description: Thermostat/HVAC entity with temperature control, modes, and fan speed
+        description: Thermostat/HVAC entity with temperature control, modes, and fan
+          speed
         properties:
           apiVersion:
             type: string
-            description: APIVersion defines the versioned schema of this representation of an object
+            description: APIVersion defines the versioned schema of this representation
+              of an object
           kind:
             type: string
-            description: Kind is a string value representing the REST resource this object represents
+            description: Kind is a string value representing the REST resource this
+              object represents
           metadata:
             type: object
           spec:
@@ -72,17 +62,9 @@ spec:
               temperatureCommandTopic:
                 type: string
                 description: Topic to set target temperature
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               temperatureStateTopic:
                 type: string
                 description: Topic to read target temperature
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               temperatureCommandTemplate:
                 type: string
                 description: Template for temperature command
@@ -92,27 +74,15 @@ spec:
               currentTemperatureTopic:
                 type: string
                 description: Topic to read current temperature
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               currentTemperatureTemplate:
                 type: string
                 description: Template to extract current temp
               modeCommandTopic:
                 type: string
                 description: Topic to set HVAC mode
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               modeStateTopic:
                 type: string
                 description: Topic to read HVAC mode
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               modeCommandTemplate:
                 type: string
                 description: Template for mode command
@@ -124,21 +94,12 @@ spec:
                 items:
                   type: string
                 description: Supported HVAC modes
-                minItems: 1
               fanModeCommandTopic:
                 type: string
                 description: Topic to set fan mode
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               fanModeStateTopic:
                 type: string
                 description: Topic to read fan mode
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               fanModeCommandTemplate:
                 type: string
                 description: Template for fan mode command
@@ -150,54 +111,31 @@ spec:
                 items:
                   type: string
                 description: Supported fan modes
-                minItems: 1
               swingModeCommandTopic:
                 type: string
                 description: Topic to set swing mode
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               swingModeStateTopic:
                 type: string
                 description: Topic to read swing mode
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               swingModes:
                 type: array
                 items:
                   type: string
                 description: Supported swing modes
-                minItems: 1
               presetModeCommandTopic:
                 type: string
                 description: Topic to set preset mode
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               presetModeStateTopic:
                 type: string
                 description: Topic to read preset mode
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               presetModes:
                 type: array
                 items:
                   type: string
                 description: Supported preset modes (e.g. away, eco, boost)
-                minItems: 1
               actionTopic:
                 type: string
                 description: Topic to read current HVAC action
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               actionTemplate:
                 type: string
                 description: Template to extract action
@@ -227,10 +165,8 @@ spec:
                 description: Display name in Home Assistant
               uniqueId:
                 type: string
-                description: Unique identifier for HA entity registry (defaults to <namespace>-<name>)
-                x-kubernetes-validations:
-                - rule: 'oldSelf == "" || self == oldSelf'
-                  message: uniqueId cannot be changed after creation
+                description: Unique identifier for HA entity registry (defaults to
+                  <namespace>-<name>)
               icon:
                 type: string
                 description: MDI icon (e.g. mdi:thermometer)
@@ -257,19 +193,15 @@ spec:
                     type: array
                     items:
                       type: string
-                    description: List of identifiers (at least one of identifiers or connections is needed)
+                    description: List of identifiers (at least one of identifiers
+                      or connections is needed)
                   connections:
                     type: array
                     items:
                       type: array
                       items:
                         type: string
-                      minItems: 2
-                      maxItems: 2
                     description: List of [type, value] pairs (e.g. [[mac, aa:bb:cc:dd:ee:ff]])
-                    x-kubernetes-validations:
-                    - rule: 'self.all(conn, conn[0] in ["mac", "bluetooth", "zigbee", "upnp"])'
-                      message: 'Connection type must be: mac, bluetooth, zigbee, or upnp'
                   manufacturer:
                     type: string
                     description: Device manufacturer
@@ -297,13 +229,10 @@ spec:
                   viaDevice:
                     type: string
                     description: Identifier of device that routes messages
-                x-kubernetes-validations:
-                - rule: (has(self.identifiers) && size(self.identifiers) > 0) || (has(self.connections)
-                    && size(self.connections) > 0)
-                  message: At least one of identifiers or connections must be specified
               deviceRef:
                 type: object
-                description: Reference to an MQTTDevice resource instead of inline device block
+                description: Reference to an MQTTDevice resource instead of inline
+                  device block
                 properties:
                   name:
                     type: string
@@ -319,10 +248,6 @@ spec:
                     topic:
                       type: string
                       description: MQTT topic for availability
-                      minLength: 1
-                      x-kubernetes-validations:
-                      - rule: '!self.contains("#") && !self.contains("+")'
-                        message: MQTT wildcards (# and +) are not allowed in topics
                     payloadAvailable:
                       type: string
                       description: 'Payload indicating available (default: online)'
@@ -355,31 +280,16 @@ spec:
               jsonAttributesTopic:
                 type: string
                 description: MQTT topic for JSON attributes
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               jsonAttributesTemplate:
                 type: string
                 description: Template to extract attributes from payload
               rediscoverInterval:
                 type: string
-                description: How often to re-publish the discovery config payload (e.g. 5m, 1h)
-                pattern: ^([0-9]+[smh])+$
-            x-kubernetes-validations:
-            - rule: '!(has(self.device) && has(self.deviceRef))'
-              message: Cannot specify both device and deviceRef
-            - rule: '!has(self.minTemp) || !has(self.maxTemp) || self.minTemp < self.maxTemp'
-              message: minTemp must be less than maxTemp
-            required:
-            - temperatureCommandTopic
+                description: How often to re-publish the discovery config payload
+                  (e.g. 5m, 1h)
           status:
             type: object
             properties:
-              observedGeneration:
-                type: integer
-                format: int64
-                description: The generation observed by the controller
               lastPublished:
                 type: string
                 format: date-time

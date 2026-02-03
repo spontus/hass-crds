@@ -1,0 +1,21 @@
+# Kind cluster configuration for hass-crds E2E tests
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: hass-crds-e2e
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    extraPortMappings:
+      # Home Assistant UI (for debugging, optional)
+      - containerPort: 30080
+        hostPort: 8123
+        protocol: TCP
+      # MQTT (for debugging, optional)
+      - containerPort: 30883
+        hostPort: 1883
+        protocol: TCP

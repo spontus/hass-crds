@@ -67,10 +67,38 @@ vet: ## Run go vet against code.
 test: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
 
-# Utilize Kind or modify the e2e tests to load the image locally, enabling compatibility with other vendors.
-.PHONY: test-e2e  # Run the e2e tests against a Kind k8s instance that is spun up.
-test-e2e:
-	go test ./test/e2e/ -v -ginkgo.v
+# E2E tests run against a Kind cluster with Mosquitto and Home Assistant
+# The tests automatically create the cluster, deploy components, run tests, and tear down
+.PHONY: test-e2e
+test-e2e: ## Run E2E tests (creates Kind cluster, deploys all components, tears down after)
+	go test ./test/e2e/ -v -ginkgo.v -timeout 20m
+
+.PHONY: test-e2e-keep
+test-e2e-keep: ## Run E2E tests but keep cluster running after (for debugging)
+	SKIP_CLUSTER_TEARDOWN=true go test ./test/e2e/ -v -ginkgo.v -timeout 20m
+
+.PHONY: test-e2e-reuse
+test-e2e-reuse: ## Run E2E tests reusing existing cluster (for fast iteration)
+	SKIP_CLUSTER_SETUP=true SKIP_CLUSTER_TEARDOWN=true go test ./test/e2e/ -v -ginkgo.v -timeout 10m
+
+.PHONY: e2e-cluster-create
+e2e-cluster-create: ## Create E2E test cluster without running tests
+	kind create cluster --name hass-crds-e2e --config test/e2e/kind-config.yaml --wait 120s
+	$(MAKE) docker-build IMG=hass-crds-controller:e2e
+	kind load docker-image hass-crds-controller:e2e --name hass-crds-e2e
+	kubectl apply -f config/crd/crds.yaml
+	kubectl apply -f test/e2e/manifests/mosquitto.yaml
+	kubectl apply -f test/e2e/manifests/homeassistant.yaml
+	kubectl apply -f test/e2e/manifests/controller.yaml
+	@echo "Waiting for deployments..."
+	kubectl rollout status deployment/mosquitto -n hass-crds-e2e --timeout=120s
+	kubectl rollout status deployment/homeassistant -n hass-crds-e2e --timeout=180s
+	kubectl rollout status deployment/hass-crds-controller -n hass-crds-e2e --timeout=60s
+	@echo "E2E cluster ready. Access with: kubectl --context kind-hass-crds-e2e"
+
+.PHONY: e2e-cluster-delete
+e2e-cluster-delete: ## Delete E2E test cluster
+	kind delete cluster --name hass-crds-e2e
 
 .PHONY: lint
 lint: golangci-lint ## Run golangci-lint linter

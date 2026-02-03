@@ -17,8 +17,6 @@ spec:
     categories:
     - hass
     - mqtt
-    shortNames:
-    - txt
   scope: Namespaced
   versions:
   - name: v1alpha1
@@ -37,16 +35,6 @@ spec:
       type: date
       description: When discovery was last published
       jsonPath: .status.lastPublished
-    - name: Device
-      type: string
-      description: Inline device name
-      jsonPath: .spec.device.name
-      priority: 1
-    - name: DeviceRef
-      type: string
-      description: Referenced MQTTDevice
-      jsonPath: .spec.deviceRef.name
-      priority: 1
     - name: Age
       type: date
       jsonPath: .metadata.creationTimestamp
@@ -57,10 +45,12 @@ spec:
         properties:
           apiVersion:
             type: string
-            description: APIVersion defines the versioned schema of this representation of an object
+            description: APIVersion defines the versioned schema of this representation
+              of an object
           kind:
             type: string
-            description: Kind is a string value representing the REST resource this object represents
+            description: Kind is a string value representing the REST resource this
+              object represents
           metadata:
             type: object
           spec:
@@ -69,20 +59,12 @@ spec:
               commandTopic:
                 type: string
                 description: Topic to publish text value
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               commandTemplate:
                 type: string
                 description: Template for the command payload
               stateTopic:
                 type: string
                 description: Topic to read current value
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               valueTemplate:
                 type: string
                 description: Template to extract value from payload
@@ -106,10 +88,8 @@ spec:
                 description: Display name in Home Assistant
               uniqueId:
                 type: string
-                description: Unique identifier for HA entity registry (defaults to <namespace>-<name>)
-                x-kubernetes-validations:
-                - rule: 'oldSelf == "" || self == oldSelf'
-                  message: uniqueId cannot be changed after creation
+                description: Unique identifier for HA entity registry (defaults to
+                  <namespace>-<name>)
               icon:
                 type: string
                 description: MDI icon (e.g. mdi:thermometer)
@@ -136,19 +116,15 @@ spec:
                     type: array
                     items:
                       type: string
-                    description: List of identifiers (at least one of identifiers or connections is needed)
+                    description: List of identifiers (at least one of identifiers
+                      or connections is needed)
                   connections:
                     type: array
                     items:
                       type: array
                       items:
                         type: string
-                      minItems: 2
-                      maxItems: 2
                     description: List of [type, value] pairs (e.g. [[mac, aa:bb:cc:dd:ee:ff]])
-                    x-kubernetes-validations:
-                    - rule: 'self.all(conn, conn[0] in ["mac", "bluetooth", "zigbee", "upnp"])'
-                      message: 'Connection type must be: mac, bluetooth, zigbee, or upnp'
                   manufacturer:
                     type: string
                     description: Device manufacturer
@@ -176,13 +152,10 @@ spec:
                   viaDevice:
                     type: string
                     description: Identifier of device that routes messages
-                x-kubernetes-validations:
-                - rule: (has(self.identifiers) && size(self.identifiers) > 0) || (has(self.connections)
-                    && size(self.connections) > 0)
-                  message: At least one of identifiers or connections must be specified
               deviceRef:
                 type: object
-                description: Reference to an MQTTDevice resource instead of inline device block
+                description: Reference to an MQTTDevice resource instead of inline
+                  device block
                 properties:
                   name:
                     type: string
@@ -198,10 +171,6 @@ spec:
                     topic:
                       type: string
                       description: MQTT topic for availability
-                      minLength: 1
-                      x-kubernetes-validations:
-                      - rule: '!self.contains("#") && !self.contains("+")'
-                        message: MQTT wildcards (# and +) are not allowed in topics
                     payloadAvailable:
                       type: string
                       description: 'Payload indicating available (default: online)'
@@ -234,29 +203,18 @@ spec:
               jsonAttributesTopic:
                 type: string
                 description: MQTT topic for JSON attributes
-                minLength: 1
-                x-kubernetes-validations:
-                - rule: '!self.contains("#") && !self.contains("+")'
-                  message: MQTT wildcards (# and +) are not allowed in topics
               jsonAttributesTemplate:
                 type: string
                 description: Template to extract attributes from payload
               rediscoverInterval:
                 type: string
-                description: How often to re-publish the discovery config payload (e.g. 5m, 1h)
-                pattern: ^([0-9]+[smh])+$
+                description: How often to re-publish the discovery config payload
+                  (e.g. 5m, 1h)
             required:
             - commandTopic
-            x-kubernetes-validations:
-            - rule: '!(has(self.device) && has(self.deviceRef))'
-              message: Cannot specify both device and deviceRef
           status:
             type: object
             properties:
-              observedGeneration:
-                type: integer
-                format: int64
-                description: The generation observed by the controller
               lastPublished:
                 type: string
                 format: date-time

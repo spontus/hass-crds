@@ -1,0 +1,101 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homeassistant-config
+  namespace: hass-crds-e2e
+data:
+  configuration.yaml: |
+    # Home Assistant E2E Test Configuration
+    homeassistant:
+      name: E2E Test
+      unit_system: metric
+      time_zone: UTC
+      auth_providers:
+        - type: trusted_networks
+          trusted_networks:
+            - 0.0.0.0/0
+          allow_bypass_login: true
+        - type: homeassistant
+
+    # HTTP API configuration
+    http:
+      server_port: 8123
+
+    # Enable API
+    api:
+
+    # Disable unnecessary components for faster startup
+    logger:
+      default: warning
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homeassistant
+  namespace: hass-crds-e2e
+  labels:
+    app: homeassistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homeassistant
+  template:
+    metadata:
+      labels:
+        app: homeassistant
+    spec:
+      containers:
+        - name: homeassistant
+          image: ghcr.io/home-assistant/home-assistant:stable
+          ports:
+            - containerPort: 8123
+              name: http
+          volumeMounts:
+            - name: config
+              mountPath: /config/configuration.yaml
+              subPath: configuration.yaml
+          env:
+            - name: TZ
+              value: UTC
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8123
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            timeoutSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: config
+          configMap:
+            name: homeassistant-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homeassistant
+  namespace: hass-crds-e2e
+spec:
+  selector:
+    app: homeassistant
+  ports:
+    - port: 8123
+      targetPort: 8123
+      name: http
+      nodePort: 30080
+  type: NodePort
