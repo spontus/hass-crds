@@ -1036,4 +1036,130 @@ spec:
 			}, 30*time.Second, 2*time.Second).Should(BeTrue())
 		})
 	})
+
+	Context("Home Assistant Entity Creation", func() {
+		It("should create a button entity in Home Assistant", func() {
+			By("Creating an MQTTButton resource")
+			buttonYAML := `
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTButton
+metadata:
+  name: ha-verify-button
+  namespace: hass-crds-e2e
+spec:
+  name: "HA Verify Button"
+  commandTopic: "e2e/button/ha-verify/command"
+  icon: "mdi:button-pointer"
+`
+			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd.Stdin = strings.NewReader(buttonYAML)
+			_, err := utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			By("Waiting for entity to appear in Home Assistant")
+			// Entity ID is derived from the name field: "HA Verify Button" → "ha_verify_button"
+			entityID := "button.ha_verify_button"
+			Eventually(func() bool {
+				exists, err := utils.HAEntityExists(entityID)
+				if err != nil {
+					fmt.Fprintf(GinkgoWriter, "HA entity check error: %v\n", err)
+					return false
+				}
+				return exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue(), "Entity should exist in Home Assistant")
+
+			By("Verifying entity attributes")
+			state, err := utils.GetHAEntityState(entityID)
+			Expect(err).NotTo(HaveOccurred())
+			fmt.Fprintf(GinkgoWriter, "HA Entity State: %s\n", state)
+
+			Expect(state).To(ContainSubstring(`"friendly_name"`))
+			Expect(state).To(ContainSubstring("HA Verify Button"))
+		})
+
+		It("should create a sensor entity in Home Assistant", func() {
+			By("Creating an MQTTSensor resource")
+			sensorYAML := `
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSensor
+metadata:
+  name: ha-verify-sensor
+  namespace: hass-crds-e2e
+spec:
+  name: "HA Verify Temperature"
+  stateTopic: "e2e/sensor/ha-verify/state"
+  unitOfMeasurement: "°C"
+  deviceClass: "temperature"
+`
+			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd.Stdin = strings.NewReader(sensorYAML)
+			_, err := utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			By("Waiting for sensor entity in Home Assistant")
+			// Entity ID is derived from the name field: "HA Verify Temperature" → "ha_verify_temperature"
+			entityID := "sensor.ha_verify_temperature"
+			Eventually(func() bool {
+				exists, err := utils.HAEntityExists(entityID)
+				if err != nil {
+					fmt.Fprintf(GinkgoWriter, "HA entity check error: %v\n", err)
+					return false
+				}
+				return exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue(), "Sensor entity should exist in Home Assistant")
+
+			By("Publishing a state value and verifying HA receives it")
+			err = utils.PublishMQTTMessage("e2e/sensor/ha-verify/state", "23.5")
+			Expect(err).NotTo(HaveOccurred())
+
+			Eventually(func() bool {
+				state, err := utils.GetHAEntityState(entityID)
+				if err != nil {
+					return false
+				}
+				return strings.Contains(state, "23.5")
+			}, 30*time.Second, 2*time.Second).Should(BeTrue(), "Sensor should show published value")
+		})
+
+		It("should remove entity from Home Assistant when CRD is deleted", func() {
+			By("Creating an MQTTSwitch resource")
+			switchYAML := `
+apiVersion: mqtt.home-assistant.io/v1alpha1
+kind: MQTTSwitch
+metadata:
+  name: ha-delete-test
+  namespace: hass-crds-e2e
+spec:
+  name: "HA Delete Test Switch"
+  commandTopic: "e2e/switch/ha-delete/set"
+  stateTopic: "e2e/switch/ha-delete/state"
+`
+			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd.Stdin = strings.NewReader(switchYAML)
+			_, err := utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			By("Waiting for entity to appear in Home Assistant")
+			// Entity ID is derived from the name field: "HA Delete Test Switch" → "ha_delete_test_switch"
+			entityID := "switch.ha_delete_test_switch"
+			Eventually(func() bool {
+				exists, err := utils.HAEntityExists(entityID)
+				return err == nil && exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue())
+
+			By("Deleting the CRD")
+			cmd = exec.Command("kubectl", "delete", "mqttswitch", "ha-delete-test", "-n", "hass-crds-e2e")
+			_, err = utils.Run(cmd)
+			Expect(err).NotTo(HaveOccurred())
+
+			By("Verifying entity is removed from Home Assistant")
+			Eventually(func() bool {
+				exists, err := utils.HAEntityExists(entityID)
+				if err != nil {
+					return false
+				}
+				return !exists
+			}, 90*time.Second, 5*time.Second).Should(BeTrue(), "Entity should be removed from Home Assistant")
+		})
+	})
 })

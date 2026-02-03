@@ -66,6 +66,53 @@ data:
         ]
       }
     }
+  auth: |
+    {
+      "version": 1,
+      "minor_version": 2,
+      "key": "auth",
+      "data": {
+        "users": [
+          {
+            "id": "e2e_test_user_id_12345",
+            "group_ids": ["system-admin"],
+            "is_owner": true,
+            "is_active": true,
+            "name": "E2E Test User",
+            "system_generated": false,
+            "local_only": false
+          }
+        ],
+        "refresh_tokens": [
+          {
+            "id": "e2e_test_token_id_12345",
+            "user_id": "e2e_test_user_id_12345",
+            "client_id": null,
+            "client_name": "E2E Test Token",
+            "client_icon": null,
+            "token_type": "long_lived_access_token",
+            "created_at": "2024-01-01T00:00:00.000000+00:00",
+            "access_token_expiration": 315360000,
+            "token": "e2e_access_token",
+            "jwt_key": "e2e_jwt_secret_key_for_testing_only",
+            "last_used_at": null,
+            "last_used_ip": null,
+            "credential_id": null,
+            "version": "2024.1.0"
+          }
+        ],
+        "credentials": []
+      }
+    }
+  onboarding: |
+    {
+      "version": 4,
+      "minor_version": 1,
+      "key": "onboarding",
+      "data": {
+        "done": ["user", "core_config", "analytics", "integration"]
+      }
+    }
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -93,7 +140,9 @@ spec:
             - |
               mkdir -p /config/.storage
               cp /storage-config/core.config_entries /config/.storage/core.config_entries
-              chmod 644 /config/.storage/core.config_entries
+              cp /storage-config/auth /config/.storage/auth
+              cp /storage-config/onboarding /config/.storage/onboarding
+              chmod 644 /config/.storage/*
           volumeMounts:
             - name: config-volume
               mountPath: /config

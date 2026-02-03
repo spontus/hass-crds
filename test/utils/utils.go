@@ -28,14 +28,16 @@ import (
 )
 
 const (
-	KindClusterName   = "hass-crds-e2e"
-	TestNamespace     = "hass-crds-e2e"
-	ControllerImage   = "hass-crds-controller:e2e"
-	KindConfigFile    = "test/e2e/kind-config.yaml"
-	ManifestsDir      = "test/e2e/manifests"
+	KindClusterName    = "hass-crds-e2e"
+	TestNamespace      = "hass-crds-e2e"
+	ControllerImage    = "hass-crds-controller:e2e"
+	KindConfigFile     = "test/e2e/kind-config.yaml"
+	ManifestsDir       = "test/e2e/manifests"
 	MQTTBrokerManifest = "test/e2e/manifests/mosquitto.yaml"
-	HAManifest        = "test/e2e/manifests/homeassistant.yaml"
-	ControllerManfest = "test/e2e/manifests/controller.yaml"
+	HAManifest         = "test/e2e/manifests/homeassistant.yaml"
+	ControllerManfest  = "test/e2e/manifests/controller.yaml"
+	// Pre-generated JWT for e2e testing (matches auth storage in homeassistant.yaml)
+	HAAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMmVfdGVzdF90b2tlbl9pZF8xMjM0NSIsImlhdCI6MTcwNDA2NzIwMCwiZXhwIjoxODkzNDU2MDAwfQ.hx4RNm-QWqEO-Zl5D-0EF3xdrpqfnW7apUUyeVvvsHI"
 )
 
 // Run executes the provided command within the project directory
@@ -261,6 +263,8 @@ func GetHAEntityState(entityID string) (string, error) {
 		"-n", TestNamespace,
 		"--",
 		"curl", "-s",
+		"-H", fmt.Sprintf("Authorization: Bearer %s", HAAccessToken),
+		"-H", "Content-Type: application/json",
 		fmt.Sprintf("http://localhost:8123/api/states/%s", entityID),
 	)
 
@@ -326,4 +330,72 @@ func GetPodLogs(deployment, namespace string, tailLines int) (string, error) {
 	)
 	output, err := Run(cmd)
 	return string(output), err
+}
+
+// HAEntityExists checks if an entity exists in Home Assistant
+func HAEntityExists(entityID string) (bool, error) {
+	state, err := GetHAEntityState(entityID)
+	if err != nil {
+		return false, err
+	}
+	// HA returns 404 as JSON: {"message": "Entity not found."}
+	if strings.Contains(state, "not found") || strings.Contains(state, "404") {
+		return false, nil
+	}
+	// Valid entity response contains "entity_id"
+	return strings.Contains(state, "entity_id"), nil
+}
+
+// GetHAEntities lists all entities in Home Assistant
+func GetHAEntities() (string, error) {
+	cmd := exec.Command("kubectl", "exec",
+		"deployment/homeassistant",
+		"-n", TestNamespace,
+		"--",
+		"curl", "-s",
+		"-H", fmt.Sprintf("Authorization: Bearer %s", HAAccessToken),
+		"-H", "Content-Type: application/json",
+		"http://localhost:8123/api/states",
+	)
+
+	output, err := Run(cmd)
+	if err != nil {
+		return "", err
+	}
+	return string(output), nil
+}
+
+// WaitForHAEntityWithAttributes waits for an entity to appear with expected attributes
+func WaitForHAEntityWithAttributes(entityID string, expectedAttrs map[string]string, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+
+	for time.Now().Before(deadline) {
+		state, err := GetHAEntityState(entityID)
+		if err != nil {
+			time.Sleep(2 * time.Second)
+			continue
+		}
+
+		if strings.Contains(state, "not found") {
+			time.Sleep(2 * time.Second)
+			continue
+		}
+
+		// Check for expected attributes in the response
+		allFound := true
+		for key, value := range expectedAttrs {
+			if !strings.Contains(state, fmt.Sprintf(`"%s"`, key)) ||
+				!strings.Contains(state, value) {
+				allFound = false
+				break
+			}
+		}
+
+		if allFound {
+			return nil
+		}
+		time.Sleep(2 * time.Second)
+	}
+
+	return fmt.Errorf("timeout waiting for entity %s with attributes %v", entityID, expectedAttrs)
 }
