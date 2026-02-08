@@ -19,7 +19,6 @@ package e2e
 import (
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -55,7 +54,7 @@ spec:
     manufacturer: "hass-crds"
     model: "E2E Test"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(buttonYAML)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -89,7 +88,7 @@ spec:
 
 			By("Verifying resource status was updated")
 			Eventually(func() bool {
-				cmd := exec.Command("kubectl", "get", "mqttbutton", "test-button",
+				cmd := utils.Kubectl("get", "mqttbutton", "test-button",
 					"-n", "hass-crds-e2e", "-o", "jsonpath={.status.discoveryTopic}")
 				out, err := utils.Run(cmd)
 				if err != nil {
@@ -111,7 +110,7 @@ spec:
   name: "Delete Test Button"
   commandTopic: "e2e/button/delete-test/command"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(buttonYAML)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -124,7 +123,7 @@ spec:
 			}, 60*time.Second, 5*time.Second).Should(BeTrue())
 
 			By("Deleting the MQTTButton resource")
-			cmd = exec.Command("kubectl", "delete", "mqttbutton", "delete-test-button", "-n", "hass-crds-e2e")
+			cmd = utils.Kubectl("delete", "mqttbutton", "delete-test-button", "-n", "hass-crds-e2e")
 			_, err = utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -160,7 +159,7 @@ spec:
     identifiers:
       - "e2e-sensor-hub-001"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(sensorYAML)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -212,7 +211,7 @@ spec:
     identifiers:
       - "e2e-switch-001"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(switchYAML)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -255,7 +254,7 @@ spec:
   payloadOn: "detected"
   payloadOff: "clear"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -293,7 +292,7 @@ spec:
   step: 1
   mode: "slider"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -331,7 +330,7 @@ spec:
     - "manual"
     - "eco"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -369,7 +368,7 @@ spec:
   max: 100
   mode: "text"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -402,7 +401,7 @@ spec:
   commandTopic: "e2e/scene/movie/activate"
   payloadOn: "ACTIVATE"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -438,7 +437,7 @@ spec:
   brightnessStateTopic: "e2e/light/test/brightness/state"
   brightnessScale: 255
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -473,7 +472,7 @@ spec:
   stateTopic: "e2e/cover/garage/state"
   deviceClass: "garage"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -507,7 +506,7 @@ spec:
   commandTopic: "e2e/lock/front/set"
   stateTopic: "e2e/lock/front/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -542,7 +541,7 @@ spec:
   percentageCommandTopic: "e2e/fan/ceiling/speed/set"
   percentageStateTopic: "e2e/fan/ceiling/speed/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -583,7 +582,7 @@ spec:
     - "cool"
     - "auto"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -618,7 +617,7 @@ spec:
   commandTopic: "e2e/alarm/panel/set"
   stateTopic: "e2e/alarm/panel/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -655,7 +654,7 @@ spec:
     - "stop"
     - "return_home"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -688,7 +687,7 @@ spec:
   stateTopic: "e2e/device_tracker/phone/state"
   sourceType: "gps"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -725,7 +724,7 @@ spec:
     - "double_press"
   deviceClass: "doorbell"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -760,7 +759,7 @@ spec:
   commandTopic: "e2e/update/firmware/install"
   deviceClass: "firmware"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -797,7 +796,7 @@ spec:
     - "burglar"
     - "doorbell"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -832,7 +831,7 @@ spec:
   targetHumidityCommandTopic: "e2e/humidifier/living/humidity/set"
   targetHumidityStateTopic: "e2e/humidifier/living/humidity/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -866,7 +865,7 @@ spec:
   stateTopic: "e2e/valve/water/state"
   deviceClass: "water"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -899,7 +898,7 @@ spec:
   name: "E2E Camera"
   topic: "e2e/camera/front/image"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -931,7 +930,7 @@ spec:
   name: "E2E Image"
   urlTopic: "e2e/image/snapshot/url"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -969,7 +968,7 @@ spec:
       payloadNotAvailable: "offline"
   availabilityMode: "all"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(sensorYAML)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1020,7 +1019,7 @@ spec:
   name: "Log Test Button"
   commandTopic: "e2e/button/log-test/command"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(buttonYAML)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1051,7 +1050,7 @@ spec:
   commandTopic: "e2e/button/ha-verify/command"
   icon: "mdi:button-pointer"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(buttonYAML)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1091,7 +1090,7 @@ spec:
   unitOfMeasurement: "°C"
   deviceClass: "temperature"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(sensorYAML)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1134,7 +1133,7 @@ spec:
   commandTopic: "e2e/switch/ha-delete/set"
   stateTopic: "e2e/switch/ha-delete/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(switchYAML)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1148,7 +1147,7 @@ spec:
 			}, 90*time.Second, 5*time.Second).Should(BeTrue())
 
 			By("Deleting the CRD")
-			cmd = exec.Command("kubectl", "delete", "mqttswitch", "ha-delete-test", "-n", "hass-crds-e2e")
+			cmd = utils.Kubectl("delete", "mqttswitch", "ha-delete-test", "-n", "hass-crds-e2e")
 			_, err = utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -1179,7 +1178,7 @@ spec:
   payloadOn: "ON"
   payloadOff: "OFF"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1224,7 +1223,7 @@ spec:
   payloadOn: "detected"
   payloadOff: "clear"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1269,7 +1268,7 @@ spec:
   min: 0
   max: 100
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1316,7 +1315,7 @@ spec:
     - "manual"
     - "eco"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1359,7 +1358,7 @@ spec:
   commandTopic: "e2e/text/state-test/set"
   stateTopic: "e2e/text/state-test/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1395,7 +1394,7 @@ spec:
   payloadOn: "ON"
   payloadOff: "OFF"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1439,7 +1438,7 @@ spec:
   stateTopic: "e2e/cover/state-test/state"
   deviceClass: "garage"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1482,7 +1481,7 @@ spec:
   commandTopic: "e2e/lock/state-test/set"
   stateTopic: "e2e/lock/state-test/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1527,7 +1526,7 @@ spec:
   percentageCommandTopic: "e2e/fan/state-test/percentage/set"
   percentageStateTopic: "e2e/fan/state-test/percentage/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1571,7 +1570,7 @@ spec:
   stateTopic: "e2e/valve/state-test/state"
   deviceClass: "water"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1614,7 +1613,7 @@ spec:
   commandTopic: "e2e/siren/state-test/set"
   stateTopic: "e2e/siren/state-test/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1657,7 +1656,7 @@ spec:
   commandTopic: "e2e/alarm/state-test/set"
   stateTopic: "e2e/alarm/state-test/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1699,7 +1698,7 @@ spec:
   name: "State Test Tracker"
   stateTopic: "e2e/device_tracker/state-test/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1741,7 +1740,7 @@ spec:
   name: "State Test Image"
   urlTopic: "e2e/image/state-test/url"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1778,7 +1777,7 @@ spec:
   targetHumidityCommandTopic: "e2e/humidifier/state-test/humidity/set"
   targetHumidityStateTopic: "e2e/humidifier/state-test/humidity/state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1829,7 +1828,7 @@ spec:
     - "cool"
     - "auto"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())
@@ -1882,7 +1881,7 @@ spec:
   stateTopic: "e2e/vacuum/state-test/state"
   schema: "state"
 `
-			cmd := exec.Command("kubectl", "apply", "-f", "-")
+			cmd := utils.Kubectl("apply", "-f", "-")
 			cmd.Stdin = strings.NewReader(yaml)
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred())

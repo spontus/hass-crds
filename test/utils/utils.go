@@ -29,6 +29,7 @@ import (
 
 const (
 	KindClusterName    = "hass-crds-e2e"
+	KindContext        = "kind-hass-crds-e2e"
 	TestNamespace      = "hass-crds-e2e"
 	ControllerImage    = "hass-crds-controller:e2e"
 	KindConfigFile     = "test/e2e/kind-config.yaml"
@@ -39,6 +40,12 @@ const (
 	// Pre-generated JWT for e2e testing (matches auth storage in homeassistant.yaml)
 	HAAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMmVfdGVzdF90b2tlbl9pZF8xMjM0NSIsImlhdCI6MTcwNDA2NzIwMCwiZXhwIjoxODkzNDU2MDAwfQ.hx4RNm-QWqEO-Zl5D-0EF3xdrpqfnW7apUUyeVvvsHI"
 )
+
+// Kubectl returns an exec.Cmd for kubectl with the e2e context pre-configured
+func Kubectl(args ...string) *exec.Cmd {
+	fullArgs := append([]string{"--context", KindContext}, args...)
+	return exec.Command("kubectl", fullArgs...)
+}
 
 // Run executes the provided command within the project directory
 func Run(cmd *exec.Cmd) ([]byte, error) {
@@ -131,7 +138,7 @@ func BuildAndLoadControllerImage() error {
 
 // InstallCRDs installs the CRDs into the cluster
 func InstallCRDs() error {
-	cmd := exec.Command("kubectl", "apply", "-f", "config/crd/crds.yaml")
+	cmd := exec.Command("kubectl", "--context", KindContext, "apply", "-f", "config/crd/crds.yaml")
 	_, err := Run(cmd)
 	return err
 }
@@ -141,7 +148,7 @@ func DeployMosquitto() error {
 	projectDir, _ := GetProjectDir()
 	manifestPath := filepath.Join(projectDir, MQTTBrokerManifest)
 
-	cmd := exec.Command("kubectl", "apply", "-f", manifestPath)
+	cmd := exec.Command("kubectl", "--context", KindContext, "apply", "-f", manifestPath)
 	if _, err := Run(cmd); err != nil {
 		return err
 	}
@@ -155,7 +162,7 @@ func DeployHomeAssistant() error {
 	projectDir, _ := GetProjectDir()
 	manifestPath := filepath.Join(projectDir, HAManifest)
 
-	cmd := exec.Command("kubectl", "apply", "-f", manifestPath)
+	cmd := exec.Command("kubectl", "--context", KindContext, "apply", "-f", manifestPath)
 	if _, err := Run(cmd); err != nil {
 		return err
 	}
@@ -169,7 +176,7 @@ func DeployController() error {
 	projectDir, _ := GetProjectDir()
 	manifestPath := filepath.Join(projectDir, ControllerManfest)
 
-	cmd := exec.Command("kubectl", "apply", "-f", manifestPath)
+	cmd := exec.Command("kubectl", "--context", KindContext, "apply", "-f", manifestPath)
 	if _, err := Run(cmd); err != nil {
 		return err
 	}
@@ -180,7 +187,7 @@ func DeployController() error {
 
 // WaitForDeployment waits for a deployment to have available replicas
 func WaitForDeployment(name, namespace string, timeout time.Duration) error {
-	cmd := exec.Command("kubectl", "rollout", "status",
+	cmd := exec.Command("kubectl", "--context", KindContext, "rollout", "status",
 		"deployment/"+name,
 		"-n", namespace,
 		"--timeout", fmt.Sprintf("%.0fs", timeout.Seconds()),
@@ -195,7 +202,7 @@ func WaitForMQTTConnection(timeout time.Duration) error {
 
 	for time.Now().Before(deadline) {
 		// Check HA logs for MQTT connection
-		cmd := exec.Command("kubectl", "logs",
+		cmd := exec.Command("kubectl", "--context", KindContext, "logs",
 			"deployment/homeassistant",
 			"-n", TestNamespace,
 			"--tail", "100",
@@ -246,7 +253,7 @@ func CleanupTestResources() error {
 	}
 
 	for _, resource := range resources {
-		cmd := exec.Command("kubectl", "delete", resource, "--all",
+		cmd := exec.Command("kubectl", "--context", KindContext, "delete", resource, "--all",
 			"-n", TestNamespace,
 			"--ignore-not-found=true",
 		)
@@ -258,7 +265,7 @@ func CleanupTestResources() error {
 
 // GetHAEntityState queries Home Assistant API for entity state
 func GetHAEntityState(entityID string) (string, error) {
-	cmd := exec.Command("kubectl", "exec",
+	cmd := exec.Command("kubectl", "--context", KindContext, "exec",
 		"deployment/homeassistant",
 		"-n", TestNamespace,
 		"--",
@@ -292,7 +299,7 @@ func WaitForHAEntity(entityID string, timeout time.Duration) error {
 
 // PublishMQTTMessage publishes a message to MQTT (for testing state topics)
 func PublishMQTTMessage(topic, payload string) error {
-	cmd := exec.Command("kubectl", "exec",
+	cmd := exec.Command("kubectl", "--context", KindContext, "exec",
 		"deployment/mosquitto",
 		"-n", TestNamespace,
 		"--",
@@ -307,7 +314,7 @@ func PublishMQTTMessage(topic, payload string) error {
 
 // SubscribeMQTTMessage subscribes and captures one message from a topic
 func SubscribeMQTTMessage(topic string, timeout time.Duration) (string, error) {
-	cmd := exec.Command("kubectl", "exec",
+	cmd := exec.Command("kubectl", "--context", KindContext, "exec",
 		"deployment/mosquitto",
 		"-n", TestNamespace,
 		"--",
@@ -323,7 +330,7 @@ func SubscribeMQTTMessage(topic string, timeout time.Duration) (string, error) {
 
 // GetPodLogs retrieves logs from a deployment
 func GetPodLogs(deployment, namespace string, tailLines int) (string, error) {
-	cmd := exec.Command("kubectl", "logs",
+	cmd := exec.Command("kubectl", "--context", KindContext, "logs",
 		"deployment/"+deployment,
 		"-n", namespace,
 		"--tail", fmt.Sprintf("%d", tailLines),
@@ -348,7 +355,7 @@ func HAEntityExists(entityID string) (bool, error) {
 
 // GetHAEntities lists all entities in Home Assistant
 func GetHAEntities() (string, error) {
-	cmd := exec.Command("kubectl", "exec",
+	cmd := exec.Command("kubectl", "--context", KindContext, "exec",
 		"deployment/homeassistant",
 		"-n", TestNamespace,
 		"--",

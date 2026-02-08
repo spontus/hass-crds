@@ -81,19 +81,23 @@ test-e2e-keep: ## Run E2E tests but keep cluster running after (for debugging)
 test-e2e-reuse: ## Run E2E tests reusing existing cluster (for fast iteration)
 	SKIP_CLUSTER_SETUP=true SKIP_CLUSTER_TEARDOWN=true go test ./test/e2e/ -v -ginkgo.v -timeout 10m
 
+# E2E cluster context - used to avoid changing user's current context
+E2E_CONTEXT ?= kind-hass-crds-e2e
+E2E_KUBECTL ?= kubectl --context $(E2E_CONTEXT)
+
 .PHONY: e2e-cluster-create
 e2e-cluster-create: ## Create E2E test cluster without running tests
 	kind create cluster --name hass-crds-e2e --config test/e2e/kind-config.yaml --wait 120s
 	$(MAKE) docker-build IMG=hass-crds-controller:e2e
 	kind load docker-image hass-crds-controller:e2e --name hass-crds-e2e
-	kubectl apply -f config/crd/crds.yaml
-	kubectl apply -f test/e2e/manifests/mosquitto.yaml
-	kubectl apply -f test/e2e/manifests/homeassistant.yaml
-	kubectl apply -f test/e2e/manifests/controller.yaml
+	$(E2E_KUBECTL) apply -f config/crd/crds.yaml
+	$(E2E_KUBECTL) apply -f test/e2e/manifests/mosquitto.yaml
+	$(E2E_KUBECTL) apply -f test/e2e/manifests/homeassistant.yaml
+	$(E2E_KUBECTL) apply -f test/e2e/manifests/controller.yaml
 	@echo "Waiting for deployments..."
-	kubectl rollout status deployment/mosquitto -n hass-crds-e2e --timeout=120s
-	kubectl rollout status deployment/homeassistant -n hass-crds-e2e --timeout=180s
-	kubectl rollout status deployment/hass-crds-controller -n hass-crds-e2e --timeout=60s
+	$(E2E_KUBECTL) rollout status deployment/mosquitto -n hass-crds-e2e --timeout=120s
+	$(E2E_KUBECTL) rollout status deployment/homeassistant -n hass-crds-e2e --timeout=180s
+	$(E2E_KUBECTL) rollout status deployment/hass-crds-controller -n hass-crds-e2e --timeout=60s
 	@echo "E2E cluster ready. Access with: kubectl --context kind-hass-crds-e2e"
 
 .PHONY: e2e-cluster-delete
