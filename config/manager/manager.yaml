@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   labels:
     control-plane: controller-manager
-    app.kubernetes.io/name: kb-init
+    app.kubernetes.io/name: hass-crds
     app.kubernetes.io/managed-by: kustomize
   name: system
 ---
@@ -14,7 +14,7 @@ metadata:
   namespace: system
   labels:
     control-plane: controller-manager
-    app.kubernetes.io/name: kb-init
+    app.kubernetes.io/name: hass-crds
     app.kubernetes.io/managed-by: kustomize
 spec:
   selector:
@@ -65,6 +65,9 @@ spec:
           - --health-probe-bind-address=:8081
         image: controller:latest
         name: manager
+        envFrom:
+        - secretRef:
+            name: mqtt-config
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:

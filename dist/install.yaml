@@ -1,0 +1,886 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: hass-crds
+    control-plane: controller-manager
+  name: hass-crds-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: hass-crds
+  name: hass-crds-controller-manager
+  namespace: hass-crds-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: hass-crds
+  name: hass-crds-leader-election-role
+  namespace: hass-crds-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hass-crds-manager-role
+rules:
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttalarmcontrolpanels
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttalarmcontrolpanels/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttalarmcontrolpanels/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttbinarysensors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttbinarysensors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttbinarysensors/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttbuttons
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttbuttons/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttbuttons/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttcameras
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttcameras/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttcameras/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttclimates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttclimates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttclimates/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttcovers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttcovers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttcovers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttdevicetrackers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttdevicetrackers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttdevicetrackers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttdevicetriggers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttdevicetriggers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttdevicetriggers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttevents
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttevents/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttevents/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttfans
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttfans/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttfans/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqtthumidifiers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqtthumidifiers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqtthumidifiers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttimages
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttimages/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttimages/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttlawnmowers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttlawnmowers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttlawnmowers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttlights
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttlights/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttlights/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttlocks
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttlocks/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttlocks/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttnotifys
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttnotifys/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttnotifys/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttnumbers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttnumbers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttnumbers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttscenes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttscenes/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttscenes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttselects
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttselects/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttselects/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttsensors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttsensors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttsensors/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttsirens
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttsirens/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttsirens/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttswitches
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttswitches/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttswitches/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqtttags
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqtttags/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqtttags/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqtttexts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqtttexts/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqtttexts/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttupdates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttupdates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttupdates/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttvacuums
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttvacuums/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttvacuums/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttvalves
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttvalves/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttvalves/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttwaterheaters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttwaterheaters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - mqtt.home-assistant.io
+  resources:
+  - mqttwaterheaters/status
+  verbs:
+  - get
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: hass-crds
+  name: hass-crds-leader-election-rolebinding
+  namespace: hass-crds-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hass-crds-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: hass-crds-controller-manager
+  namespace: hass-crds-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: hass-crds
+  name: hass-crds-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hass-crds-manager-role
+subjects:
+- kind: ServiceAccount
+  name: hass-crds-controller-manager
+  namespace: hass-crds-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: hass-crds
+    control-plane: controller-manager
+  name: hass-crds-controller-manager
+  namespace: hass-crds-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --leader-elect
+        - --health-probe-bind-address=:8081
+        command:
+        - /manager
+        envFrom:
+        - secretRef:
+            name: mqtt-config
+        image: ghcr.io/spontus/hass-crds-controller:latest
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: hass-crds-controller-manager
+      terminationGracePeriodSeconds: 10

@@ -219,3 +219,8 @@ vendor/
 
 # Kubebuilder artifacts
 cover.out
+
+# Keep dist/install.yaml for easy installation
+!dist/
+dist/*
+!dist/install.yaml
