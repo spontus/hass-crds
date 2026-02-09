@@ -10,6 +10,7 @@ A Kubernetes operator that manages Home Assistant entities via MQTT autodiscover
 - **Clean deletion**: Entities are removed from Home Assistant when CRDs are deleted
 - **Device grouping**: Group multiple entities under a single device
 - **Availability tracking**: Configure availability topics for entity status
+- **Web UI**: Built-in dashboard for managing entities with dynamic forms
 
 ## Supported Entity Types
 
@@ -45,6 +46,12 @@ A Kubernetes operator that manages Home Assistant entities via MQTT autodiscover
 | Water Heater | `MQTTWaterHeater` |
 
 ## Installation
+
+### Container Image
+
+```
+ghcr.io/spontus/hass-crds-controller:v1.3.0
+```
 
 ### Prerequisites
 
@@ -82,7 +89,7 @@ cd hass-crds
 make install
 
 # Deploy controller (builds and pushes image)
-make deploy IMG=ghcr.io/your-org/hass-crds-controller:latest
+make deploy
 ```
 
 ### Environment Variables
@@ -227,6 +234,28 @@ homeassistant/button/home-garage-door/config
 
 Each entity gets a unique ID automatically generated from `<namespace>-<name>`. You can override this with the `uniqueId` field in the spec.
 
+## Web UI
+
+The controller includes a built-in web dashboard for managing MQTT entities. Access it at port 8080 on the controller pod.
+
+### Features
+
+- **Dashboard**: Overview of all entities with status indicators
+- **Entity List**: Filter and search entities by type, namespace, or name
+- **Create Wizard**: Dynamic forms generated from CRD schemas
+- **Edit/Delete**: Modify or remove existing entities
+- **YAML Preview**: View the generated Kubernetes manifest before creation
+
+### Accessing the UI
+
+```bash
+# Port forward to access the UI locally
+kubectl port-forward -n hass-crds-system deployment/hass-crds-controller-manager 8080:8080
+
+# Open in browser
+open http://localhost:8080
+```
+
 ## Development
 
 ### Build
@@ -239,7 +268,10 @@ make docker-build   # Build Docker image
 ### Test
 
 ```bash
-make test           # Unit tests
+make test           # Go unit tests with envtest
+make test-api       # API handler unit tests
+make test-frontend  # Frontend unit tests (Vitest)
+make test-all       # Run all tests (Go + Frontend)
 make test-e2e       # E2E tests (requires Docker, Kind)
 make lint           # Run linter
 ```

@@ -1,5 +1,7 @@
+# Version from VERSION file
+VERSION ?= $(shell cat VERSION)
 # Image URL to use all building/pushing image targets
-IMG ?= ghcr.io/spontus/hass-crds-controller:latest
+IMG ?= ghcr.io/spontus/hass-crds-controller:v$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.30.0
 
@@ -41,6 +43,32 @@ all: build
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
+##@ Frontend
+
+.PHONY: frontend-install
+frontend-install: ## Install frontend dependencies
+	cd src/front && npm install
+
+.PHONY: frontend-dev
+frontend-dev: ## Run frontend dev server with API proxy
+	cd src/front && npm run dev
+
+.PHONY: frontend-build
+frontend-build: frontend-install ## Build frontend for production
+	cd src/front && npm run build
+
+.PHONY: frontend-lint
+frontend-lint: ## Lint frontend code
+	cd src/front && npm run lint
+
+.PHONY: frontend-typecheck
+frontend-typecheck: ## Run TypeScript type checking
+	cd src/front && npm run typecheck
+
+.PHONY: frontend-test
+frontend-test: ## Run frontend unit tests
+	cd src/front && npm run test
+
 ##@ Development
 
 .PHONY: manifests
@@ -66,6 +94,17 @@ vet: ## Run go vet against code.
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
+
+.PHONY: test-api
+test-api: ## Run API handler unit tests
+	go test ./internal/api/... -v -coverprofile=coverage-api.out
+
+.PHONY: test-frontend
+test-frontend: frontend-install ## Run frontend unit tests
+	cd src/front && npm run test
+
+.PHONY: test-all
+test-all: test test-api test-frontend ## Run all tests (Go + Frontend)
 
 # E2E tests run against a Kind cluster with Mosquitto and Home Assistant
 # The tests automatically create the cluster, deploy components, run tests, and tear down
@@ -117,6 +156,9 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 .PHONY: build
 build: generate fmt vet ## Build manager binary.
 	go build -o bin/manager cmd/main.go
+
+.PHONY: build-all
+build-all: frontend-build build ## Build frontend and manager binary
 
 .PHONY: run
 run: generate fmt vet ## Run a controller from your host.

@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 3 169 244;
+    --color-secondary: 65 189 245;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen;
+  }
+
+  * {
+    @apply border-slate-700;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150;
+    @apply focus:outline-none focus:ring-2 focus:ring-ha-blue/50 focus:ring-offset-2 focus:ring-offset-slate-900;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply bg-ha-blue text-white hover:bg-ha-blue/90 active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-600;
+  }
+
+  .btn-ghost {
+    @apply text-slate-400 hover:text-slate-100 hover:bg-slate-800;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100;
+    @apply placeholder:text-slate-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-ha-blue/50 focus:border-ha-blue;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .label {
+    @apply text-sm font-medium text-slate-300;
+  }
+
+  .card {
+    @apply rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.slate.700') transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.slate.700');
+    border-radius: 3px;
+  }
+}

@@ -1,3 +1,11 @@
+# Build frontend
+FROM node:20-alpine AS frontend-builder
+WORKDIR /app/src/front
+COPY src/front/package*.json ./
+RUN npm ci
+COPY src/front/ ./
+RUN npm run build
+
 # Build the manager binary
 FROM golang:1.22 AS builder
 ARG TARGETOS
@@ -15,6 +23,9 @@ RUN go mod download
 COPY cmd/main.go cmd/main.go
 COPY api/ api/
 COPY internal/ internal/
+
+# Copy built frontend assets
+COPY --from=frontend-builder /app/internal/api/static internal/api/static/
 
 # Build
 # the GOARCH has not a default value to allow the binary be built according to the host where the command
