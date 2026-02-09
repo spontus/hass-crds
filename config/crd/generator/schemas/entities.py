@@ -1080,6 +1080,16 @@ MQTT_CAMERA = {
             "type": "string",
             "description": "Image encoding (b64 for base64-encoded images)",
         },
+        "stateClass": {
+            "type": "string",
+            "description": "State class for statistics",
+            "enum": ["measurement", "total", "total_increasing"],
+        },
+        "expireAfter": {
+            "type": "integer",
+            "description": "Seconds after which the image expires",
+            "minimum": 0,
+        },
     },
     "required": ["topic"],
 }

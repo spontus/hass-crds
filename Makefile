@@ -77,7 +77,7 @@ manifests: controller-gen ## Generate RBAC manifests (CRDs are generated via Pyt
 
 .PHONY: crds
 crds: ## Generate CRD manifests using Python generator.
-	cd config/crd/generator && python generate.py
+	cd config/crd/generator && python3 generate.py
 
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.

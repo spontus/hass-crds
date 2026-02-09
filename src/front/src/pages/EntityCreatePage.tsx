@@ -18,7 +18,7 @@ export default function EntityCreatePage() {
   const createEntity = useCreateEntity()
 
   const entityType = typesData?.entityTypes?.find((t) => t.kind === kind)
-  const namespaces = namespacesData?.namespaces || []
+  const namespaces = [...(namespacesData?.namespaces || [])].sort((a, b) => a.name.localeCompare(b.name))
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

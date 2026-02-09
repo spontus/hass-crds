@@ -17,7 +17,7 @@ export default function EntityListPage() {
 
   const entityType = typesData?.entityTypes?.find((t) => t.kind === kind)
   const entities = entitiesData?.items || []
-  const namespaces = namespacesData?.namespaces || []
+  const namespaces = [...(namespacesData?.namespaces || [])].sort((a, b) => a.name.localeCompare(b.name))
 
   const filteredEntities = entities.filter((entity) => {
     if (!searchQuery) return true

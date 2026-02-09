@@ -26,6 +26,7 @@ import (
 )
 
 // +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch
 
 func SetupAllControllers(mgr ctrl.Manager, mqttClient mqtt.Client, log logr.Logger) error {
 	c := mgr.GetClient()

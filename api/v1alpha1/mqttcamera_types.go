@@ -30,6 +30,15 @@ type MQTTCameraSpec struct {
 	// ImageEncoding is the image encoding (b64 for base64-encoded images)
 	// +optional
 	ImageEncoding string `json:"imageEncoding,omitempty"`
+
+	// StateClass is the state class for statistics (unusual for cameras but supported)
+	// +kubebuilder:validation:Enum=measurement;total;total_increasing
+	// +optional
+	StateClass string `json:"stateClass,omitempty"`
+
+	// ExpireAfter is the seconds after which the image expires
+	// +optional
+	ExpireAfter *int `json:"expireAfter,omitempty"`
 }
 
 // MQTTCameraStatus defines the observed state of MQTTCamera.

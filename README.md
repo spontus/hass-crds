@@ -50,7 +50,7 @@ A Kubernetes operator that manages Home Assistant entities via MQTT autodiscover
 ### Container Image
 
 ```
-ghcr.io/spontus/hass-crds-controller:v1.3.2
+ghcr.io/spontus/hass-crds-controller:v1.3.4
 ```
 
 ### Prerequisites

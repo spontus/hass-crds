@@ -139,6 +139,10 @@ type CommonSpec struct {
 	// +optional
 	Availability []AvailabilityConfig `json:"availability,omitempty"`
 
+	// AvailabilityTopic is a simple availability topic (shorthand for single availability)
+	// +optional
+	AvailabilityTopic string `json:"availabilityTopic,omitempty"`
+
 	// AvailabilityMode is how to combine multiple availability topics
 	// +kubebuilder:validation:Enum=all;any;latest
 	// +optional

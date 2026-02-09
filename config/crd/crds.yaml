@@ -218,6 +218,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -468,6 +471,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -710,6 +716,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -841,6 +850,17 @@ spec:
               imageEncoding:
                 type: string
                 description: Image encoding (b64 for base64-encoded images)
+              stateClass:
+                type: string
+                description: State class for statistics
+                enum:
+                - measurement
+                - total
+                - total_increasing
+              expireAfter:
+                type: integer
+                description: Seconds after which the image expires
+                minimum: 0
               name:
                 type: string
                 description: Display name in Home Assistant
@@ -940,6 +960,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -1268,6 +1291,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -1574,6 +1600,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -1955,6 +1984,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -2198,6 +2230,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -2443,6 +2478,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -2752,6 +2790,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -3050,6 +3091,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -3291,6 +3335,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -3540,6 +3587,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -3883,6 +3933,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -4149,6 +4202,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -4380,6 +4436,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -4641,6 +4700,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -4871,6 +4933,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -5115,6 +5180,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -5372,6 +5440,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -5640,6 +5711,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -5897,6 +5971,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -6127,6 +6204,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -6378,6 +6458,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -6638,6 +6721,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -6911,6 +6997,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -7190,6 +7279,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics
@@ -7475,6 +7567,9 @@ spec:
                       description: Template to extract availability from payload
                   required:
                   - topic
+              availabilityTopic:
+                type: string
+                description: Simple availability topic (shorthand for single availability)
               availabilityMode:
                 type: string
                 description: How to combine multiple availability topics

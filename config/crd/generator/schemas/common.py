@@ -135,6 +135,10 @@ AVAILABILITY = {
             "required": ["topic"],
         },
     },
+    "availabilityTopic": {
+        "type": "string",
+        "description": "Simple availability topic (shorthand for single availability)",
+    },
     "availabilityMode": {
         "type": "string",
         "description": "How to combine multiple availability topics",
