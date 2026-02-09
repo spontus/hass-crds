@@ -63,6 +63,14 @@ metadata:
   name: hass-crds-manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - mqtt.home-assistant.io
   resources:
   - mqttalarmcontrolpanels
@@ -824,6 +832,24 @@ subjects:
   name: hass-crds-controller-manager
   namespace: hass-crds-system
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: hass-crds
+    control-plane: controller-manager
+  name: hass-crds-controller-manager-ui
+  namespace: hass-crds-system
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: http
+  selector:
+    control-plane: controller-manager
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -849,12 +875,13 @@ spec:
       - args:
         - --leader-elect
         - --health-probe-bind-address=:8081
+        - --api-bind-address=:8080
         command:
         - /manager
         envFrom:
         - secretRef:
             name: mqtt-config
-        image: harbor.spontus.se/lab/hass-crds-controller:v1.0.0
+        image: ghcr.io/spontus/hass-crds-controller:v1.3.2
         livenessProbe:
           httpGet:
             path: /healthz
@@ -862,6 +889,13 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 20
         name: manager
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 8081
+          name: health
+          protocol: TCP
         readinessProbe:
           httpGet:
             path: /readyz

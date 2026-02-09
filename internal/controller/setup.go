@@ -25,6 +25,8 @@ import (
 	"github.com/spontus/hass-crds/internal/mqtt"
 )
 
+// +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
+
 func SetupAllControllers(mgr ctrl.Manager, mqttClient mqtt.Client, log logr.Logger) error {
 	c := mgr.GetClient()
 	scheme := mgr.GetScheme()

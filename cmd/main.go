@@ -149,6 +149,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Setup signal handler once for both API server and manager
+	signalCtx := ctrl.SetupSignalHandler()
+
 	// Start API server if address is configured
 	if apiAddr != "" {
 		apiServer, err := api.NewServer(apiAddr, mgr.GetClient(), ctrl.GetConfigOrDie(), setupLog)
@@ -157,7 +160,7 @@ func main() {
 			os.Exit(1)
 		}
 		go func() {
-			if err := apiServer.Start(ctrl.SetupSignalHandler()); err != nil {
+			if err := apiServer.Start(signalCtx); err != nil {
 				setupLog.Error(err, "API server error")
 			}
 		}()
@@ -173,7 +176,7 @@ func main() {
 	}
 
 	setupLog.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(signalCtx); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
