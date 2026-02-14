@@ -18,10 +18,12 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -84,21 +86,25 @@ func (r *BaseReconciler) PublishDiscovery(ctx context.Context, obj EntityObject,
 	// Add unique_id to payload
 	pb.Set("uniqueId", uniqueID)
 
-	// Add device configuration if present
-	if spec.Device != nil {
+	// Resolve device configuration: inline device block or deviceRef
+	deviceBlock, err := r.resolveDevice(ctx, spec, namespace)
+	if err != nil {
+		return fmt.Errorf("resolving device: %w", err)
+	}
+	if deviceBlock != nil {
 		device := payload.DeviceBlockToMap(
-			spec.Device.Name,
-			spec.Device.Identifiers,
-			spec.Device.Connections,
-			spec.Device.Manufacturer,
-			spec.Device.Model,
-			spec.Device.ModelId,
-			spec.Device.SerialNumber,
-			spec.Device.HwVersion,
-			spec.Device.SwVersion,
-			spec.Device.SuggestedArea,
-			spec.Device.ConfigurationUrl,
-			spec.Device.ViaDevice,
+			deviceBlock.Name,
+			deviceBlock.Identifiers,
+			deviceBlock.Connections,
+			deviceBlock.Manufacturer,
+			deviceBlock.Model,
+			deviceBlock.ModelId,
+			deviceBlock.SerialNumber,
+			deviceBlock.HwVersion,
+			deviceBlock.SwVersion,
+			deviceBlock.SuggestedArea,
+			deviceBlock.ConfigurationUrl,
+			deviceBlock.ViaDevice,
 		)
 		pb.SetDevice(device)
 	}
@@ -145,6 +151,27 @@ func (r *BaseReconciler) PublishDiscovery(ctx context.Context, obj EntityObject,
 
 	r.Log.Info("Published discovery message", "topic", discoveryTopic, "kind", kind, "name", name)
 	return nil
+}
+
+// resolveDevice returns the DeviceBlock from either inline spec.Device or by
+// fetching the MQTTDevice referenced by spec.DeviceRef. Returns nil if neither is set.
+func (r *BaseReconciler) resolveDevice(ctx context.Context, spec *mqttv1alpha1.CommonSpec, namespace string) (*mqttv1alpha1.DeviceBlock, error) {
+	if spec.Device != nil {
+		return spec.Device, nil
+	}
+
+	if spec.DeviceRef == nil {
+		return nil, nil
+	}
+
+	var mqttDevice mqttv1alpha1.MQTTDevice
+	key := types.NamespacedName{Name: spec.DeviceRef.Name, Namespace: namespace}
+	if err := r.Client.Get(ctx, key, &mqttDevice); err != nil {
+		return nil, fmt.Errorf("fetching MQTTDevice %q: %w", spec.DeviceRef.Name, err)
+	}
+
+	block := mqttDevice.Spec.ToDeviceBlock()
+	return &block, nil
 }
 
 // HandleDeletion publishes an empty payload to remove the entity from Home Assistant.
