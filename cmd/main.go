@@ -39,6 +39,7 @@ import (
 	mqttv1alpha1 "github.com/spontus/hass-crds/api/v1alpha1"
 	"github.com/spontus/hass-crds/internal/api"
 	"github.com/spontus/hass-crds/internal/controller"
+	"github.com/spontus/hass-crds/internal/gc"
 	"github.com/spontus/hass-crds/internal/mqtt"
 )
 
@@ -146,6 +147,14 @@ func main() {
 	// Setup all controllers
 	if err := controller.SetupAllControllers(mgr, mqttClient, setupLog); err != nil {
 		setupLog.Error(err, "unable to setup controllers")
+		os.Exit(1)
+	}
+
+	// Register orphan garbage collector
+	gcConfig := gc.NewConfigFromEnv()
+	collector := gc.NewOrphanCollector(mgr.GetClient(), mqttClient, setupLog, gcConfig)
+	if err := mgr.Add(collector); err != nil {
+		setupLog.Error(err, "unable to register orphan garbage collector")
 		os.Exit(1)
 	}
 

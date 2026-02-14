@@ -22,6 +22,22 @@ import (
 	"unicode"
 )
 
+const (
+	// OriginName is the name used in the origin block of discovery payloads.
+	OriginName = "hass-crds"
+
+	// OriginSupportURL is the support URL used in the origin block.
+	OriginSupportURL = "https://github.com/spontus/hass-crds"
+)
+
+// DefaultOrigin returns the default origin block for discovery payloads.
+func DefaultOrigin() map[string]interface{} {
+	return map[string]interface{}{
+		"name":        OriginName,
+		"support_url": OriginSupportURL,
+	}
+}
+
 // Builder builds MQTT discovery payloads.
 type Builder struct {
 	data map[string]interface{}
@@ -100,6 +116,14 @@ func (b *Builder) SetDevice(device map[string]interface{}) *Builder {
 func (b *Builder) SetAvailability(availability []map[string]interface{}) *Builder {
 	if len(availability) > 0 {
 		b.data["availability"] = availability
+	}
+	return b
+}
+
+// SetOrigin adds an origin block to the payload.
+func (b *Builder) SetOrigin(origin map[string]interface{}) *Builder {
+	if len(origin) > 0 {
+		b.data["origin"] = origin
 	}
 	return b
 }

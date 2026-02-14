@@ -19,6 +19,7 @@ package mqtt
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -43,11 +44,16 @@ const (
 	DefaultReconnectWaitTimeout = 30 * time.Second
 )
 
+// MessageHandler is a callback for received MQTT messages.
+type MessageHandler func(topic string, payload []byte)
+
 // Client defines the interface for MQTT operations.
 type Client interface {
 	Connect(ctx context.Context) error
 	Disconnect()
 	Publish(ctx context.Context, topic string, payload []byte, qos byte, retain bool) error
+	Subscribe(ctx context.Context, topic string, qos byte, handler MessageHandler) error
+	Unsubscribe(ctx context.Context, topics ...string) error
 	IsConnected() bool
 	WaitForConnection(ctx context.Context) error
 }
@@ -221,6 +227,58 @@ func (c *PahoClient) WaitForConnection(ctx context.Context) error {
 	}
 }
 
+// Subscribe subscribes to a topic with the given QoS and message handler.
+func (c *PahoClient) Subscribe(ctx context.Context, topic string, qos byte, handler MessageHandler) error {
+	if err := c.WaitForConnection(ctx); err != nil {
+		return err
+	}
+
+	c.mu.RLock()
+	client := c.client
+	c.mu.RUnlock()
+
+	token := client.Subscribe(topic, qos, func(_ pahomqtt.Client, msg pahomqtt.Message) {
+		handler(msg.Topic(), msg.Payload())
+	})
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-token.Done():
+		if token.Error() != nil {
+			return fmt.Errorf("failed to subscribe to %s: %w", topic, token.Error())
+		}
+	}
+
+	c.log.V(1).Info("Subscribed to MQTT topic", "topic", topic, "qos", qos)
+	return nil
+}
+
+// Unsubscribe unsubscribes from the given topics.
+func (c *PahoClient) Unsubscribe(ctx context.Context, topics ...string) error {
+	c.mu.RLock()
+	client := c.client
+	c.mu.RUnlock()
+
+	if client == nil {
+		return fmt.Errorf("MQTT client not initialized")
+	}
+
+	token := client.Unsubscribe(topics...)
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-token.Done():
+		if token.Error() != nil {
+			return fmt.Errorf("failed to unsubscribe: %w", token.Error())
+		}
+	}
+
+	c.log.V(1).Info("Unsubscribed from MQTT topics", "topics", topics)
+	return nil
+}
+
 // IsConnected returns whether the client is connected.
 func (c *PahoClient) IsConnected() bool {
 	c.mu.RLock()
@@ -233,9 +291,11 @@ func (c *PahoClient) IsConnected() bool {
 type MockClient struct {
 	connected     bool
 	publishedMsgs []PublishedMessage
+	subscriptions map[string]MessageHandler
 	mu            sync.Mutex
 	publishErr    error
 	connectErr    error
+	subscribeErr  error
 }
 
 // PublishedMessage records a published message for testing.
@@ -248,7 +308,9 @@ type PublishedMessage struct {
 
 // NewMockClient creates a new mock MQTT client.
 func NewMockClient() *MockClient {
-	return &MockClient{}
+	return &MockClient{
+		subscriptions: make(map[string]MessageHandler),
+	}
 }
 
 func (m *MockClient) Connect(ctx context.Context) error {
@@ -282,6 +344,27 @@ func (m *MockClient) Publish(ctx context.Context, topic string, payload []byte, 
 		QoS:     qos,
 		Retain:  retain,
 	})
+	return nil
+}
+
+func (m *MockClient) Subscribe(_ context.Context, topic string, _ byte, handler MessageHandler) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.subscribeErr != nil {
+		return m.subscribeErr
+	}
+	m.subscriptions[topic] = handler
+	return nil
+}
+
+func (m *MockClient) Unsubscribe(_ context.Context, topics ...string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	for _, t := range topics {
+		delete(m.subscriptions, t)
+	}
 	return nil
 }
 
@@ -332,4 +415,52 @@ func (m *MockClient) ClearMessages() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.publishedMsgs = nil
+}
+
+// SimulateMessage delivers a message to all matching subscription handlers.
+func (m *MockClient) SimulateMessage(topic string, payload []byte) {
+	m.mu.Lock()
+	// Copy handlers to avoid holding lock during callback
+	handlers := make(map[string]MessageHandler, len(m.subscriptions))
+	for k, v := range m.subscriptions {
+		handlers[k] = v
+	}
+	m.mu.Unlock()
+
+	for subTopic, handler := range handlers {
+		if topicMatchesFilter(topic, subTopic) {
+			handler(topic, payload)
+		}
+	}
+}
+
+// SetSubscribeError sets an error to return on subscribe.
+func (m *MockClient) SetSubscribeError(err error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.subscribeErr = err
+}
+
+// topicMatchesFilter checks if a concrete topic matches an MQTT filter with wildcards.
+func topicMatchesFilter(topic, filter string) bool {
+	if topic == filter {
+		return true
+	}
+
+	topicParts := strings.Split(topic, "/")
+	filterParts := strings.Split(filter, "/")
+
+	for i, fp := range filterParts {
+		if fp == "#" {
+			return true
+		}
+		if i >= len(topicParts) {
+			return false
+		}
+		if fp != "+" && fp != topicParts[i] {
+			return false
+		}
+	}
+
+	return len(topicParts) == len(filterParts)
 }

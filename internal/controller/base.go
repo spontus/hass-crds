@@ -120,6 +120,9 @@ func (r *BaseReconciler) PublishDiscovery(ctx context.Context, obj EntityObject,
 		}
 	}
 
+	// Add origin block for garbage collection identification
+	pb.SetOrigin(payload.DefaultOrigin())
+
 	// Build JSON payload
 	jsonPayload, err := pb.Build()
 	if err != nil {

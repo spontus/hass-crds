@@ -21,6 +21,41 @@ import (
 	"strings"
 )
 
+// ComponentToKind is a reverse mapping from Home Assistant component types to Kubernetes kinds.
+// Generated automatically from ComponentMapping.
+var ComponentToKind map[string]string
+
+func init() {
+	ComponentToKind = make(map[string]string, len(ComponentMapping))
+	for kind, component := range ComponentMapping {
+		ComponentToKind[component] = kind
+	}
+}
+
+// DiscoveryTopicInfo holds parsed information from a discovery topic.
+type DiscoveryTopicInfo struct {
+	Prefix    string
+	Component string
+	Namespace string
+	Name      string
+}
+
+// ParseDiscoveryTopic parses a discovery topic string into its components.
+// Expected format: <prefix>/<component>/<namespace>/<name>/config
+func ParseDiscoveryTopic(topic string) (*DiscoveryTopicInfo, error) {
+	parts := strings.Split(topic, "/")
+	if len(parts) != 5 || parts[4] != "config" {
+		return nil, fmt.Errorf("invalid discovery topic format: %s", topic)
+	}
+
+	return &DiscoveryTopicInfo{
+		Prefix:    parts[0],
+		Component: parts[1],
+		Namespace: parts[2],
+		Name:      parts[3],
+	}, nil
+}
+
 // DefaultDiscoveryPrefix is the default Home Assistant MQTT discovery prefix.
 const DefaultDiscoveryPrefix = "homeassistant"
 

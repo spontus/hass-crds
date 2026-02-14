@@ -133,8 +133,8 @@ func TestGetEntityTypes(t *testing.T) {
 
 func TestGetEntityTypeByKind(t *testing.T) {
 	tests := []struct {
-		kind        string
-		expectFound bool
+		kind         string
+		expectFound  bool
 		expectPlural string
 	}{
 		{"MQTTButton", true, "mqttbuttons"},
