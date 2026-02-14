@@ -889,7 +889,7 @@ spec:
         envFrom:
         - secretRef:
             name: mqtt-config
-        image: harbor.spontus.se/lab/hass-crds-controller:v1.4.0
+        image: harbor.spontus.se/lab/hass-crds-controller:v1.4.1
         livenessProbe:
           httpGet:
             path: /healthz
