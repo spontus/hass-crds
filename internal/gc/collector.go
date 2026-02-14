@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 	"sync"
 	"time"
 
@@ -161,11 +160,13 @@ func (c *OrphanCollector) Collect(ctx context.Context) error {
 
 	c.log.V(1).Info("Found entities with our origin", "count", len(ours))
 
-	// Step 3: Build set of expected discovery topics from existing CRs
-	expected := c.buildExpectedTopics(ctx)
+	// Step 3: Build set of expected discovery topics from existing CRs,
+	// also tracking which component types were successfully listed.
+	expected, verifiedComponents := c.buildExpectedTopics(ctx)
 
-	// Step 4: Find orphans (topics with our origin that are not in expected set)
-	orphans := findOrphans(ours, expected)
+	// Step 4: Find orphans — only for components we successfully listed.
+	// If we failed to list a component type, we must not treat its entities as orphans.
+	orphans := findOrphans(ours, expected, verifiedComponents)
 	if len(orphans) == 0 {
 		c.log.V(1).Info("No orphaned entities found")
 		return nil
@@ -263,30 +264,27 @@ func hasOurOrigin(data []byte) bool {
 	return ok && name == payload.OriginName
 }
 
-// buildExpectedTopics lists all CRs and returns the set of discovery topics that should exist.
-func (c *OrphanCollector) buildExpectedTopics(ctx context.Context) map[string]struct{} {
+// buildExpectedTopics lists all CRs and returns:
+// - the set of discovery topics that should exist
+// - the set of HA component types that were successfully listed
+func (c *OrphanCollector) buildExpectedTopics(ctx context.Context) (map[string]struct{}, map[string]struct{}) {
 	expected := make(map[string]struct{})
+	verifiedComponents := make(map[string]struct{})
 
 	for kind, component := range topic.ComponentMapping {
-		resource := kindToResource(kind)
-
-		gvr := schema.GroupVersionResource{
-			Group:    "mqtt.home-assistant.io",
-			Version:  "v1alpha1",
-			Resource: resource,
-		}
-
 		list := &unstructured.UnstructuredList{}
 		list.SetGroupVersionKind(schema.GroupVersionKind{
-			Group:   gvr.Group,
-			Version: gvr.Version,
+			Group:   "mqtt.home-assistant.io",
+			Version: "v1alpha1",
 			Kind:    kind + "List",
 		})
 
 		if err := c.k8sClient.List(ctx, list); err != nil {
-			c.log.V(1).Info("Failed to list CRs, skipping", "kind", kind, "error", err)
+			c.log.Info("Failed to list CRs, will not GC this type", "kind", kind, "error", err)
 			continue
 		}
+
+		verifiedComponents[component] = struct{}{}
 
 		for _, item := range list.Items {
 			t := fmt.Sprintf("%s/%s/%s/%s/config",
@@ -299,22 +297,26 @@ func (c *OrphanCollector) buildExpectedTopics(ctx context.Context) map[string]st
 		}
 	}
 
-	return expected
+	return expected, verifiedComponents
 }
 
 // findOrphans returns topics from discovered entities that are not in the expected set.
-func findOrphans(ours []discoveredEntity, expected map[string]struct{}) []string {
+// Only entities whose component type is in verifiedComponents are considered;
+// if we failed to list a component type, we skip its entities to avoid false positives.
+func findOrphans(ours []discoveredEntity, expected map[string]struct{}, verifiedComponents map[string]struct{}) []string {
 	var orphans []string
 	for _, e := range ours {
+		info, err := topic.ParseDiscoveryTopic(e.Topic)
+		if err != nil {
+			continue
+		}
+		// Only consider entities whose component type we successfully listed
+		if _, verified := verifiedComponents[info.Component]; !verified {
+			continue
+		}
 		if _, ok := expected[e.Topic]; !ok {
 			orphans = append(orphans, e.Topic)
 		}
 	}
 	return orphans
-}
-
-// kindToResource converts a CRD kind to its plural resource name.
-// e.g., "MQTTButton" -> "mqttbuttons", "MQTTBinarySensor" -> "mqttbinarysensors"
-func kindToResource(kind string) string {
-	return strings.ToLower(kind) + "s"
 }

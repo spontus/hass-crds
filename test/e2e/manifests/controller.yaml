@@ -69,6 +69,8 @@ spec:
               value: "homeassistant"
             - name: WATCH_NAMESPACE
               value: "hass-crds-e2e"
+            - name: GC_ENABLED
+              value: "false"
           resources:
             requests:
               memory: "64Mi"

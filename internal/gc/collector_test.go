@@ -29,11 +29,17 @@ import (
 )
 
 func TestFindOrphans(t *testing.T) {
+	allVerified := map[string]struct{}{
+		"button": {},
+		"sensor": {},
+	}
+
 	tests := []struct {
-		name     string
-		ours     []discoveredEntity
-		expected map[string]struct{}
-		want     []string
+		name               string
+		ours               []discoveredEntity
+		expected           map[string]struct{}
+		verifiedComponents map[string]struct{}
+		want               []string
 	}{
 		{
 			name: "no orphans",
@@ -45,7 +51,8 @@ func TestFindOrphans(t *testing.T) {
 				"homeassistant/button/default/btn1/config": {},
 				"homeassistant/sensor/default/temp/config": {},
 			},
-			want: nil,
+			verifiedComponents: allVerified,
+			want:               nil,
 		},
 		{
 			name: "one orphan",
@@ -56,7 +63,8 @@ func TestFindOrphans(t *testing.T) {
 			expected: map[string]struct{}{
 				"homeassistant/button/default/btn1/config": {},
 			},
-			want: []string{"homeassistant/button/default/btn2/config"},
+			verifiedComponents: allVerified,
+			want:               []string{"homeassistant/button/default/btn2/config"},
 		},
 		{
 			name: "all orphans",
@@ -64,23 +72,45 @@ func TestFindOrphans(t *testing.T) {
 				{Topic: "homeassistant/sensor/ns/s1/config"},
 				{Topic: "homeassistant/sensor/ns/s2/config"},
 			},
-			expected: map[string]struct{}{},
+			expected:           map[string]struct{}{},
+			verifiedComponents: allVerified,
 			want: []string{
 				"homeassistant/sensor/ns/s1/config",
 				"homeassistant/sensor/ns/s2/config",
 			},
 		},
 		{
-			name:     "empty discovered",
-			ours:     nil,
-			expected: map[string]struct{}{"homeassistant/button/default/btn1/config": {}},
-			want:     nil,
+			name:               "empty discovered",
+			ours:               nil,
+			expected:           map[string]struct{}{"homeassistant/button/default/btn1/config": {}},
+			verifiedComponents: allVerified,
+			want:               nil,
+		},
+		{
+			name: "skips unverified component",
+			ours: []discoveredEntity{
+				{Topic: "homeassistant/button/default/btn1/config"},
+				{Topic: "homeassistant/image/default/img1/config"},
+			},
+			expected:           map[string]struct{}{},
+			verifiedComponents: map[string]struct{}{"button": {}}, // image NOT verified
+			want:               []string{"homeassistant/button/default/btn1/config"},
+		},
+		{
+			name: "skips invalid topic format",
+			ours: []discoveredEntity{
+				{Topic: "bad-topic"},
+				{Topic: "homeassistant/button/default/btn1/config"},
+			},
+			expected:           map[string]struct{}{},
+			verifiedComponents: allVerified,
+			want:               []string{"homeassistant/button/default/btn1/config"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := findOrphans(tt.ours, tt.expected)
+			got := findOrphans(tt.ours, tt.expected, tt.verifiedComponents)
 			sort.Strings(got)
 			sort.Strings(tt.want)
 
@@ -225,9 +255,10 @@ func TestCollect_RemovesOrphans(t *testing.T) {
 		t.Fatalf("expected 1 entity with our origin, got %d", len(ours))
 	}
 
-	// Simulate empty expected set (no CRs exist)
+	// Simulate empty expected set (no CRs exist) but button component is verified
 	expected := map[string]struct{}{}
-	orphans := findOrphans(ours, expected)
+	verifiedComponents := map[string]struct{}{"button": {}}
+	orphans := findOrphans(ours, expected, verifiedComponents)
 	if len(orphans) != 1 {
 		t.Fatalf("expected 1 orphan, got %d", len(orphans))
 	}
@@ -365,26 +396,6 @@ func TestConfigFromEnv(t *testing.T) {
 
 			cfg := NewConfigFromEnv()
 			tt.validate(t, cfg)
-		})
-	}
-}
-
-func TestKindToResource(t *testing.T) {
-	tests := []struct {
-		kind     string
-		expected string
-	}{
-		{"MQTTButton", "mqttbuttons"},
-		{"MQTTBinarySensor", "mqttbinarysensors"},
-		{"MQTTAlarmControlPanel", "mqttalarmcontrolpanels"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.kind, func(t *testing.T) {
-			got := kindToResource(tt.kind)
-			if got != tt.expected {
-				t.Errorf("kindToResource(%q) = %q, want %q", tt.kind, got, tt.expected)
-			}
 		})
 	}
 }
